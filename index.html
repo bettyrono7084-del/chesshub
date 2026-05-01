@@ -2192,6 +2192,7 @@
 
 <!-- ===== CHALLENGE MODAL removed — now inline in page ===== -->
 
+<script src="/socket.io/socket.io.js"></script>
 <script>
 // ===== SETTINGS =====
 const settings = {
@@ -2462,6 +2463,16 @@ function makeMove(g, from, to, promotion = 'Q') {
   updateMoveList(g);
   updateStatus(g);
   renderBoard(g);
+
+  // Emit move to opponent if online game
+  if (g.id === 'online' && g.roomId) {
+    socket.emit('make-move', {
+      roomId: g.roomId,
+      move: moveStr,
+      boardState: g.board,
+      moveHistory: g.moveHistory
+    });
+  }
 
   // Check game over
   if (!hasAnyLegalMove(g)) {
@@ -3004,6 +3015,70 @@ let mmQueueInterval = null;
 let mmCountdownInterval = null;
 let matchedOpponent = null;
 
+// Socket.io connection for real multiplayer
+const socket = io('http://localhost:3000', {
+  reconnection: true,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000,
+  reconnectionAttempts: 5
+});
+
+let currentRoomId = null;
+let currentPlayerId = null;
+let yourColor = null;
+
+socket.on('connect', () => {
+  console.log('Connected to server:', socket.id);
+});
+
+socket.on('searching-for-opponent', () => {
+  console.log('Searching for opponent...');
+});
+
+socket.on('game-started', (data) => {
+  const { roomId, players, yourColor: color, playerId } = data;
+  currentRoomId = roomId;
+  currentPlayerId = playerId;
+  yourColor = color;
+  
+  // Find opponent info from players array
+  const opponent = players.find(p => p.playerId !== playerId);
+  
+  // Create fake opponent object for display
+  matchedOpponent = {
+    name: opponent.name || 'Opponent',
+    elo: Math.floor(1400 + Math.random() * 500),
+    avatar: color === 'w' ? '♚' : '♔',
+    flag: '🌐'
+  };
+  
+  showMatchFound(matchedOpponent);
+});
+
+socket.on('search-cancelled', () => {
+  console.log('Search cancelled');
+});
+
+socket.on('opponent-move', (data) => {
+  const { move, boardState, moveHistory } = data;
+  console.log('Opponent moved:', move);
+  // Handle opponent move in your current game
+});
+
+socket.on('game-ended', (data) => {
+  const { result, reason } = data;
+  console.log('Game ended:', result, reason);
+  alert(`Game ended: ${result} (${reason})`);
+});
+
+socket.on('opponent-resigned', () => {
+  alert('Opponent resigned. You win!');
+});
+
+socket.on('opponent-disconnected', () => {
+  alert('Opponent disconnected. Game aborted.');
+});
+
 function showOnlineFind() {
   document.getElementById('online-find-screen').style.display = 'flex';
   document.getElementById('online-search-screen').style.display = 'none';
@@ -3012,8 +3087,9 @@ function showOnlineFind() {
 }
 
 function startMatchmaking() {
+  const playerName = document.getElementById('profile-name')?.value || 'Player_' + Math.floor(Math.random() * 10000);
   mmSeconds = 0;
-  mmQueueCount = Math.floor(Math.random() * 8) + 1;
+  mmQueueCount = Math.floor(Math.random() * 12) + 2;
   document.getElementById('mm-timer').textContent = '0:00';
   document.getElementById('mm-queue-count').textContent = mmQueueCount;
 
@@ -3036,12 +3112,8 @@ function startMatchmaking() {
     if (el) el.textContent = mmQueueCount;
   }, 1800);
 
-  // Match after 2.5–5 seconds
-  const delay = 2500 + Math.random() * 2500;
-  mmSearchTimeout = setTimeout(() => {
-    matchedOpponent = FAKE_PLAYERS[Math.floor(Math.random() * FAKE_PLAYERS.length)];
-    showMatchFound(matchedOpponent);
-  }, delay);
+  // Emit find-opponent event to server
+  socket.emit('find-opponent', { playerName });
 }
 
 function showMatchFound(opp) {
@@ -3094,15 +3166,18 @@ function launchOnlineGame(opp) {
   document.getElementById('online-opp-elo').textContent = `⭐ ${opp.elo} ELO`;
   document.getElementById('online-opp-avatar').textContent = opp.avatar;
   const playerName = document.getElementById('profile-name')?.value || 'You';
-  document.getElementById('online-you-name').textContent = playerName + ' (White)';
+  const colorLabel = yourColor === 'w' ? 'White' : 'Black';
+  document.getElementById('online-you-name').textContent = playerName + ' (' + colorLabel + ')';
 
   document.getElementById('online-found-screen').style.display = 'none';
   document.getElementById('online-game-screen').style.display = 'flex';
 
-  // Create as vs-computer so opponent makes moves automatically
+  // Create online game with actual player color from server
   if (games['online']) delete games['online'];
-  const g = createGame('online', true, 'w', 'medium');
+  const g = createGame('online', true, yourColor, 'medium');
   g.opponentName = opp.name;
+  g.roomId = currentRoomId;
+  g.playerId = currentPlayerId;
   activeGame = g;
 }
 
@@ -3111,7 +3186,12 @@ function cancelMatchmaking() {
   clearInterval(mmQueueInterval);
   clearInterval(mmCountdownInterval);
   clearTimeout(mmSearchTimeout);
+  // Update UI first
   showOnlineFind();
+  // Then emit cancel-search event to server
+  if (socket && socket.connected) {
+    socket.emit('cancel-search');
+  }
 }
 
 // ===== FRIENDS (Play with Friends) =====

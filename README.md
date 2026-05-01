@@ -4,7 +4,7 @@ A beautiful, fully-featured chess game with online multiplayer support!
 
 ## Features
 
-✅ **Play Online** - Real-time multiplayer chess with move synchronization
+✅ **Play Online** - Real-time multiplayer chess with matchmaking
 ✅ **Play vs Computer** - Challenge the AI with multiple difficulty levels
 ✅ **Play Offline** - Local two-player mode
 ✅ **Chess Puzzles** - 100+ curated chess puzzles
@@ -12,7 +12,7 @@ A beautiful, fully-featured chess game with online multiplayer support!
 ✅ **Move History** - Full move notation and game replay
 ✅ **Full Chess Rules** - Castling, en passant, pawn promotion, check/checkmate
 
-## Quick Start
+## Quick Start (Local Development)
 
 ### Installation
 
@@ -33,20 +33,78 @@ npm start
 
 The server will start on `http://localhost:3000`
 
-### Playing Online
+### Playing Online (Local)
 
 1. **Open two browser windows** to the same URL: `http://localhost:3000`
 2. In the first window:
    - Click "Play Online"
-   - Enter your name (optional)
-   - Click "Create Game"
-   - Copy the room code that appears
+   - Click "Find a Game"
+   - Wait for matchmaking
 3. In the second window:
    - Click "Play Online"
-   - Enter a different name
-   - Paste the room code or select from available games
-   - Click "Join Game"
-4. **Start playing!** The first player (creator) plays as White, the second as Black
+   - Click "Find a Game"
+4. **Start playing!** Players are automatically matched and assigned colors
+
+## 🚀 Deployment
+
+### Option 1: Railway (Recommended - Free)
+
+1. **Create a Railway account** at [railway.app](https://railway.app)
+2. **Connect your GitHub repository** or upload the project files
+3. **Deploy automatically** - Railway will detect Node.js and install dependencies
+4. **Get your live URL** - Your chess app will be live instantly!
+
+### Option 2: Render
+
+1. **Create a Render account** at [render.com](https://render.com)
+2. **Create a new Web Service**
+3. **Connect your GitHub repo** or upload files
+4. **Configure build settings**:
+   - Build Command: `npm install`
+   - Start Command: `npm start`
+5. **Deploy** - Get your live URL
+
+### Option 3: Heroku
+
+1. **Install Heroku CLI** and login
+2. **Initialize git repo** (if not already done):
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit"
+   ```
+3. **Create Heroku app**:
+   ```bash
+   heroku create your-app-name
+   ```
+4. **Deploy**:
+   ```bash
+   git push heroku main
+   ```
+
+### Option 4: Vercel (Static Only - Limited)
+
+For static deployment only (no real-time multiplayer):
+1. **Create Vercel account** at [vercel.com](https://vercel.com)
+2. **Deploy** - Vercel will serve the HTML files
+3. **Note**: Real-time multiplayer won't work without a Node.js server
+
+## Environment Variables
+
+The app uses the following environment variables (automatically set by hosting platforms):
+
+- `PORT` - Server port (defaults to 3000)
+
+## Tech Stack
+
+- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
+- **Backend**: Node.js, Express.js
+- **Real-time**: Socket.io
+- **Styling**: Custom CSS with CSS Variables for theming
+
+## Contributing
+
+Feel free to submit issues and enhancement requests!
 
 ### Alternative: Use Room Codes
 
