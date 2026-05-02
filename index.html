@@ -2833,7 +2833,7 @@ function showPage(pageId) {
     createGame('offline');
   }
   if (pageId === 'puzzles') {
-    renderPuzzles();
+    renderPuzzleGrid();
   }
 }
 
@@ -3446,7 +3446,7 @@ function init() {
   createGame('offline');
   activeGame = games['offline'];
   showOnlineFind();
-  renderPuzzles();
+  renderPuzzleGrid();
 }
 
 init();
