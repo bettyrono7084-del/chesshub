@@ -12,6 +12,11 @@ A beautiful, fully-featured chess game with online multiplayer support!
 ✅ **Move History** - Full move notation and game replay
 ✅ **Full Chess Rules** - Castling, en passant, pawn promotion, check/checkmate
 
+## Live Demo
+
+- **GitHub repo:** https://github.com/bettyrono7084-del/chesshub
+- **Railway deployment:** https://chesshub-production-c005.up.railway.app
+
 ## Quick Start (Local Development)
 
 ### Installation
@@ -50,7 +55,7 @@ The server will start on `http://localhost:3000`
 ### Option 1: Railway (Recommended - Free)
 
 1. **Create a Railway account** at [railway.app](https://railway.app)
-2. **Connect your GitHub repository** or upload the project files
+2. **Connect your GitHub repository:** `https://github.com/bettyrono7084-del/chesshub`
 3. **Deploy automatically** - Railway will detect Node.js and install dependencies
 4. **Get your live URL** - Your chess app will be live instantly!
 
