@@ -2494,7 +2494,7 @@ function makeMove(g, from, to, promotion = 'Q') {
   renderBoard(g);
 
   // Emit move to opponent if online game
-  if (g.id === 'online' && g.roomId) {
+  if ((g.id === 'online' || g.id === 'friends') && g.roomId) {
     socket.emit('make-move', {
       roomId: g.roomId,
       move: moveStr,
@@ -2543,14 +2543,14 @@ function promotePawn(type) {
   g.board[p.to[0]][p.to[1]] = p.color + type;
   g.pendingPromotion = null;
   const fullMoveStr = p.moveStr + '=' + type;
-  g.moveHistory.push({ from: g.lastMove.from, to: p.to });
+  // moveHistory handled in makeMove
   g.moveStrings.push(fullMoveStr);
   updateMoveList(g);
   updateStatus(g);
   renderBoard(g);
 
   // Emit promotion to server for online games (makeMove returned early and skipped the emit)
-  if (g.id === 'online' && g.roomId) {
+  if ((g.id === 'online' || g.id === 'friends') && g.roomId) {
     socket.emit('make-move', {
       roomId: g.roomId,
       move: fullMoveStr,
@@ -3114,32 +3114,32 @@ socket.on('opponent-move', (data) => {
   const { move, boardState, moveHistory, enPassant, castlingRights, lastMove, captured, turn } = data;
   console.log('Opponent moved:', move);
 
-  const onlineGame = games['online'];
-  if (onlineGame) {
-    onlineGame.board = boardState;
-    onlineGame.moveHistory = moveHistory || onlineGame.moveHistory;
+  const g = games['online'] || games['friends'];
+  if (g) {
+    g.board = boardState;
+    g.moveHistory = moveHistory || g.moveHistory;
     // Append just this move's notation string (don't rebuild from moveHistory — those objects have no .move field)
-    onlineGame.moveStrings.push(move);
+    g.moveStrings.push(move);
     // Set turn directly from authoritative server value instead of toggling (toggling breaks if event fires twice)
-    onlineGame.turn = turn || (onlineGame.turn === 'w' ? 'b' : 'w');
+    g.turn = turn || (g.turn === 'w' ? 'b' : 'w');
     // Sync all game-state fields that affect legal-move calculation
-    if (enPassant !== undefined) onlineGame.enPassant = enPassant;
-    if (castlingRights)          onlineGame.castlingRights = castlingRights;
-    if (lastMove)                onlineGame.lastMove = lastMove;
-    if (captured)                onlineGame.captured = captured;
+    if (enPassant !== undefined) g.enPassant = enPassant;
+    if (castlingRights)          g.castlingRights = castlingRights;
+    if (lastMove)                g.lastMove = lastMove;
+    if (captured)                g.captured = captured;
 
-    updateMoveList(onlineGame);
-    updateStatus(onlineGame);
-    renderBoard(onlineGame);
+    updateMoveList(g);
+    updateStatus(g);
+    renderBoard(g);
 
     // Detect checkmate / stalemate after opponent's move
-    if (!hasAnyLegalMove(onlineGame)) {
-      if (isInCheck(onlineGame.board, onlineGame.turn)) {
-        showGameOver(onlineGame.turn === 'w' ? 'Black Wins!' : 'White Wins!', 'by Checkmate ♟', onlineGame.id);
+    if (!hasAnyLegalMove(g)) {
+      if (isInCheck(g.board, g.turn)) {
+        showGameOver(g.turn === 'w' ? 'Black Wins!' : 'White Wins!', 'by Checkmate ♟', g.id);
       } else {
-        showGameOver('Draw!', 'Stalemate — no legal moves', onlineGame.id);
+        showGameOver('Draw!', 'Stalemate — no legal moves', g.id);
       }
-      onlineGame.gameOver = true;
+      g.gameOver = true;
     }
   }
 });
@@ -3420,7 +3420,7 @@ function launchFriendGame(p) {
   document.getElementById('friends-game-screen').style.display = 'flex';
 
   if (games['friends']) delete games['friends'];
-  const g = createGame('friends', true, 'w', 'medium');
+  const g = createGame('friends', false, 'w', 'medium');
   g.opponentName = p.name;
   activeGame = g;
 }

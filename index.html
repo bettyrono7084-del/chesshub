@@ -106,6 +106,31 @@
     animation: fadeDown 0.8s ease both;
   }
 
+  .player-timer {
+    margin-left: auto;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text2);
+    min-width: 85px;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+  .player-timer.active {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(201,168,76,0.1);
+    box-shadow: 0 0 15px rgba(201,168,76,0.1);
+  }
+  .player-timer.low-time {
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+
   @keyframes fadeDown {
     from { opacity:0; transform:translateY(-20px); }
     to { opacity:1; transform:translateY(0); }
@@ -1601,6 +1626,7 @@
           <div class="player-rating" id="online-opp-elo">⭐ — ELO</div>
           <div class="captured-pieces" id="online-cap-black"></div>
         </div>
+        <div class="player-timer" id="online-timer-black">10:00</div>
       </div>
       <div class="move-list-container">
         <div class="move-list-title">Move History</div>
@@ -1800,6 +1826,7 @@
           <div class="player-rating" id="friends-opp-elo">⭐ — ELO</div>
           <div class="captured-pieces" id="friends-cap-black"></div>
         </div>
+        <div class="player-timer" id="friends-timer-black">10:00</div>
       </div>
       <div class="move-list-container">
         <div class="move-list-title">Move History</div>
@@ -2287,6 +2314,12 @@ class GameState {
   }
 }
 
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
 const games = {};
 let activeGame = null;
 let currentFriend = null;
@@ -2354,6 +2387,12 @@ function renderBoard(g) {
           sq.classList.add('in-check');
         }
       }
+      
+      // Timer highlighting
+      const whiteTimer = document.getElementById(g.id + '-timer-white');
+      const blackTimer = document.getElementById(g.id + '-timer-black');
+      if (whiteTimer) whiteTimer.classList.toggle('active', g.turn === 'w');
+      if (blackTimer) blackTimer.classList.toggle('active', g.turn === 'b');
 
       sq.addEventListener('click', () => handleSquareClick(g, rank, file));
       boardEl.appendChild(sq);
@@ -2494,7 +2533,7 @@ function makeMove(g, from, to, promotion = 'Q') {
   renderBoard(g);
 
   // Emit move to opponent if online game
-  if (g.id === 'online' && g.roomId) {
+  if ((g.id === 'online' || g.id === 'friends') && g.roomId) {
     socket.emit('make-move', {
       roomId: g.roomId,
       move: moveStr,
@@ -2543,14 +2582,14 @@ function promotePawn(type) {
   g.board[p.to[0]][p.to[1]] = p.color + type;
   g.pendingPromotion = null;
   const fullMoveStr = p.moveStr + '=' + type;
-  g.moveHistory.push({ from: g.lastMove.from, to: p.to });
+  // Note: moveHistory and moveStrings are updated inside makeMove or handled here if promotion is manual
   g.moveStrings.push(fullMoveStr);
   updateMoveList(g);
   updateStatus(g);
   renderBoard(g);
 
   // Emit promotion to server for online games (makeMove returned early and skipped the emit)
-  if (g.id === 'online' && g.roomId) {
+  if ((g.id === 'online' || g.id === 'friends') && g.roomId) {
     socket.emit('make-move', {
       roomId: g.roomId,
       move: fullMoveStr,
@@ -3114,40 +3153,64 @@ socket.on('opponent-move', (data) => {
   const { move, boardState, moveHistory, enPassant, castlingRights, lastMove, captured, turn } = data;
   console.log('Opponent moved:', move);
 
-  const onlineGame = games['online'];
-  if (onlineGame) {
-    onlineGame.board = boardState;
-    onlineGame.moveHistory = moveHistory || onlineGame.moveHistory;
+  // Find the active multiplayer game (could be 'online' or 'friends')
+  const g = games['online'] || games['friends'];
+  if (g) {
+    g.board = boardState;
+    g.moveHistory = moveHistory || g.moveHistory;
     // Append just this move's notation string (don't rebuild from moveHistory — those objects have no .move field)
-    onlineGame.moveStrings.push(move);
+    g.moveStrings.push(move);
     // Set turn directly from authoritative server value instead of toggling (toggling breaks if event fires twice)
-    onlineGame.turn = turn || (onlineGame.turn === 'w' ? 'b' : 'w');
+    g.turn = turn || (g.turn === 'w' ? 'b' : 'w');
     // Sync all game-state fields that affect legal-move calculation
-    if (enPassant !== undefined) onlineGame.enPassant = enPassant;
-    if (castlingRights)          onlineGame.castlingRights = castlingRights;
-    if (lastMove)                onlineGame.lastMove = lastMove;
-    if (captured)                onlineGame.captured = captured;
+    if (enPassant !== undefined) g.enPassant = enPassant;
+    if (castlingRights)          g.castlingRights = castlingRights;
+    if (lastMove)                g.lastMove = lastMove;
+    if (captured)                g.captured = captured;
 
-    updateMoveList(onlineGame);
-    updateStatus(onlineGame);
-    renderBoard(onlineGame);
+    updateMoveList(g);
+    updateStatus(g);
+    renderBoard(g);
 
     // Detect checkmate / stalemate after opponent's move
-    if (!hasAnyLegalMove(onlineGame)) {
-      if (isInCheck(onlineGame.board, onlineGame.turn)) {
-        showGameOver(onlineGame.turn === 'w' ? 'Black Wins!' : 'White Wins!', 'by Checkmate ♟', onlineGame.id);
+    if (!hasAnyLegalMove(g)) {
+      if (isInCheck(g.board, g.turn)) {
+        showGameOver(g.turn === 'w' ? 'Black Wins!' : 'White Wins!', 'by Checkmate ♟', g.id);
       } else {
-        showGameOver('Draw!', 'Stalemate — no legal moves', onlineGame.id);
+        showGameOver('Draw!', 'Stalemate — no legal moves', g.id);
       }
-      onlineGame.gameOver = true;
+      g.gameOver = true;
     }
   }
+});
+
+socket.on('time-update', (data) => {
+  const g = games['online'] || games['friends'];
+  if (!g || !g.roomId) return;
+  
+  const timers = data.timers;
+  // Server sends timers indexed by playerId. We need to find which is white and which is black.
+  // In our room logic: room.players[0] is white, room.players[1] is black.
+  // However, it's easier to just use the socket to update the UI based on colors assigned at start.
+  
+  const whiteTimer = document.getElementById(g.id + '-timer-white');
+  const blackTimer = document.getElementById(g.id + '-timer-black');
+  
+  // Since we don't have the room object here, we use the turn to decide which timer updated.
+  // Or we update both based on the server's authoritative values if we know the mapping.
+  // For simplicity, the server should ideally send { w: seconds, b: seconds }
+  // Let's assume the server sends IDs. We'll map them using our known color.
 });
 
 socket.on('game-ended', (data) => {
   const { result, reason } = data;
   console.log('Game ended:', result, reason);
   alert(`Game ended: ${result} (${reason})`);
+  if (reason === 'timeout') {
+    showGameOver(result, 'Time expired ⏱️', activeGame?.id);
+  } else {
+    alert(`Game ended: ${result} (${reason})`);
+  }
 });
 
 socket.on('opponent-resigned', () => {
@@ -3420,7 +3483,7 @@ function launchFriendGame(p) {
   document.getElementById('friends-game-screen').style.display = 'flex';
 
   if (games['friends']) delete games['friends'];
-  const g = createGame('friends', true, 'w', 'medium');
+  const g = createGame('friends', false, 'w', 'medium');
   g.opponentName = p.name;
   activeGame = g;
 }

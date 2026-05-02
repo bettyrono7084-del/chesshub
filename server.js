@@ -19,6 +19,8 @@ app.use(express.static(path.join(__dirname)));
 // Get port from environment or default to 3000
 const PORT = process.env.PORT || 3000;
 
+const DEFAULT_TIME = 600; // 10 minutes in seconds
+
 // Game rooms storage
 const rooms = {};
 const users = {};
@@ -54,10 +56,20 @@ function tryMatchPlayers() {
         moves: [],
         board: null,
         turn: 'w',
-        gameOver: false
+        gameOver: false,
+        timers: {
+          [player1.playerId]: DEFAULT_TIME,
+          [player2.playerId]: DEFAULT_TIME
+        }
       },
       isMatchmade: true
     };
+
+    // Make both sockets join the room so they can communicate
+    const s1 = io.sockets.sockets.get(player1.socketId);
+    const s2 = io.sockets.sockets.get(player2.socketId);
+    if (s1) s1.join(roomId);
+    if (s2) s2.join(roomId);
 
     // Notify both players
     io.to(player1.socketId).emit('game-started', {
@@ -112,7 +124,10 @@ io.on('connection', (socket) => {
         moves: [],
         board: null,
         turn: 'w',
-        gameOver: false
+        gameOver: false,
+        timers: {
+          [user.playerId]: DEFAULT_TIME
+        }
       },
       isMatchmade: false
     };
@@ -143,6 +158,10 @@ io.on('connection', (socket) => {
     room.players.push(user.playerId);
     room.sockets.push(socket.id);
     room.playerDetails[user.playerId] = user;
+    
+    // Initialize joiner timer
+    room.gameState.timers[user.playerId] = DEFAULT_TIME;
+    room.gameState.turn = 'w';
 
     socket.join(roomId);
     console.log('Player joined friend room:', roomId);
@@ -319,6 +338,32 @@ io.on('connection', (socket) => {
     console.log('Player disconnected:', socket.id);
   });
 });
+
+// Global Timer Interval
+setInterval(() => {
+  for (const roomId in rooms) {
+    const room = rooms[roomId];
+    if (room.gameState && !room.gameState.gameOver && room.players.length === 2) {
+      const { turn, timers } = room.gameState;
+      // White is always index 0, Black index 1
+      const activePlayerId = turn === 'w' ? room.players[0] : room.players[1];
+      
+      if (timers && timers[activePlayerId] !== undefined) {
+        timers[activePlayerId]--;
+        
+        if (timers[activePlayerId] <= 0) {
+          room.gameState.gameOver = true;
+          io.to(roomId).emit('game-ended', {
+            result: turn === 'w' ? 'Black Wins' : 'White Wins',
+            reason: 'timeout'
+          });
+        } else {
+          io.to(roomId).emit('time-update', { timers });
+        }
+      }
+    }
+  }
+}, 1000);
 
 server.listen(PORT, () => {
   console.log(`🎯 Chess server listening on port ${PORT}`);
