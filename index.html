@@ -2304,7 +2304,7 @@ function createGame(id, vsComputer = false, playerColor = 'w', difficulty = 'eas
 function renderBoard(g) {
   const boardEl = document.getElementById('board-' + g.id);
   if (!boardEl) return;
-  const flipped = g.vsComputer && g.playerColor === 'b';
+  const flipped = g.playerColor === 'b';
   boardEl.innerHTML = '';
 
   // ranks[0] renders at TOP of board. For white-at-bottom: index 0 (black's back rank) at top.
@@ -2499,7 +2499,12 @@ function makeMove(g, from, to, promotion = 'Q') {
       roomId: g.roomId,
       move: moveStr,
       boardState: g.board,
-      moveHistory: g.moveHistory
+      moveHistory: g.moveHistory,
+      enPassant: g.enPassant,
+      castlingRights: g.castlingRights,
+      lastMove: g.lastMove,
+      captured: g.captured,
+      turn: g.turn  // authoritative next turn — receiver sets it directly instead of toggling
     });
   }
 
@@ -2537,11 +2542,28 @@ function promotePawn(type) {
   const g = p.g;
   g.board[p.to[0]][p.to[1]] = p.color + type;
   g.pendingPromotion = null;
+  const fullMoveStr = p.moveStr + '=' + type;
   g.moveHistory.push({ from: g.lastMove.from, to: p.to });
-  g.moveStrings.push(p.moveStr + '=' + type);
+  g.moveStrings.push(fullMoveStr);
   updateMoveList(g);
   updateStatus(g);
   renderBoard(g);
+
+  // Emit promotion to server for online games (makeMove returned early and skipped the emit)
+  if (g.id === 'online' && g.roomId) {
+    socket.emit('make-move', {
+      roomId: g.roomId,
+      move: fullMoveStr,
+      boardState: g.board,
+      moveHistory: g.moveHistory,
+      enPassant: g.enPassant,
+      castlingRights: g.castlingRights,
+      lastMove: g.lastMove,
+      captured: g.captured,
+      turn: g.turn
+    });
+  }
+
   if (!hasAnyLegalMove(g)) {
     if (isInCheck(g.board, g.turn)) {
       showGameOver(g.turn === 'w' ? 'Black Wins!' : 'White Wins!', 'by Checkmate ♟', g.id);
@@ -2798,7 +2820,7 @@ function updateStatus(g) {
   if (g.vsComputer) {
     statusEl.textContent = g.turn === g.playerColor ? 'Your Turn' : 'Computer thinking...';
   } else if (g.id === 'online') {
-    statusEl.textContent = g.turn === 'w' ? 'Your Turn' : "Opponent's Turn";
+    statusEl.textContent = g.turn === g.playerColor ? 'Your Turn' : "Opponent's Turn";
   } else {
     statusEl.textContent = turnName + '\'s Turn';
   }
@@ -3089,21 +3111,36 @@ socket.on('search-cancelled', () => {
 });
 
 socket.on('opponent-move', (data) => {
-  const { move, boardState, moveHistory } = data;
+  const { move, boardState, moveHistory, enPassant, castlingRights, lastMove, captured, turn } = data;
   console.log('Opponent moved:', move);
 
-  // Update the game state with opponent's move
   const onlineGame = games['online'];
   if (onlineGame) {
     onlineGame.board = boardState;
-    onlineGame.moveHistory = moveHistory;
-    onlineGame.moveStrings = moveHistory.map(m => m.move || move);
-    onlineGame.turn = onlineGame.turn === 'w' ? 'b' : 'w';
-    onlineGame.lastMove = null; // Could parse from moveHistory if needed
+    onlineGame.moveHistory = moveHistory || onlineGame.moveHistory;
+    // Append just this move's notation string (don't rebuild from moveHistory — those objects have no .move field)
+    onlineGame.moveStrings.push(move);
+    // Set turn directly from authoritative server value instead of toggling (toggling breaks if event fires twice)
+    onlineGame.turn = turn || (onlineGame.turn === 'w' ? 'b' : 'w');
+    // Sync all game-state fields that affect legal-move calculation
+    if (enPassant !== undefined) onlineGame.enPassant = enPassant;
+    if (castlingRights)          onlineGame.castlingRights = castlingRights;
+    if (lastMove)                onlineGame.lastMove = lastMove;
+    if (captured)                onlineGame.captured = captured;
 
     updateMoveList(onlineGame);
     updateStatus(onlineGame);
     renderBoard(onlineGame);
+
+    // Detect checkmate / stalemate after opponent's move
+    if (!hasAnyLegalMove(onlineGame)) {
+      if (isInCheck(onlineGame.board, onlineGame.turn)) {
+        showGameOver(onlineGame.turn === 'w' ? 'Black Wins!' : 'White Wins!', 'by Checkmate ♟', onlineGame.id);
+      } else {
+        showGameOver('Draw!', 'Stalemate — no legal moves', onlineGame.id);
+      }
+      onlineGame.gameOver = true;
+    }
   }
 });
 
