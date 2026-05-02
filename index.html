@@ -2122,7 +2122,7 @@
             <div class="setting-sub">Ambient chess music</div>
           </div>
           <label class="toggle">
-            <input type="checkbox" id="toggle-music" onchange="settings.music=this.checked">
+            <input type="checkbox" id="toggle-music" onchange="toggleMusic(this.checked)">
             <div class="toggle-track"></div>
             <div class="toggle-thumb"></div>
           </label>
@@ -2162,6 +2162,10 @@
     </div>
   </div>
 </div>
+
+<audio id="background-music" loop preload="auto" style="display:none"
+  src="./Music/Trio%20Mio%20-%20Cheza%20Kama%20Wewe%20Remix%20Lyrics%20ft%20Mejja%20x%20Exray%20(Boondocks)%20x%20Nelly%20The%20Goon%20(Ochungulo)%20[JL8fLnXM5kg].mp3">
+</audio>
 
 <!-- ===== GAME OVER MODAL ===== -->
 <div class="modal-overlay" id="game-over-modal">
@@ -2206,6 +2210,30 @@ const settings = {
   music: false,
   darkMode: true
 };
+
+function toggleMusic(enabled) {
+  settings.music = enabled;
+  const musicEl = document.getElementById('background-music');
+  if (!musicEl) return;
+  if (enabled) {
+    const promise = musicEl.play();
+    if (promise && typeof promise.catch === 'function') {
+      promise.catch(() => {
+        // Autoplay may be blocked by browser; do nothing.
+      });
+    }
+  } else {
+    musicEl.pause();
+    musicEl.currentTime = 0;
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const musicToggle = document.getElementById('toggle-music');
+  if (musicToggle) {
+    musicToggle.checked = settings.music;
+  }
+});
 
 // ===== OPENINGS DB =====
 const openings = {
@@ -3016,7 +3044,7 @@ let mmCountdownInterval = null;
 let matchedOpponent = null;
 
 // Socket.io connection for real multiplayer
-const socket = io('http://localhost:3000', {
+const socket = io({
   reconnection: true,
   reconnectionDelay: 1000,
   reconnectionDelayMax: 5000,
