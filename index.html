@@ -2387,6 +2387,7 @@ function renderAllBoards() {
 function handleSquareClick(g, rank, file) {
   if (g.gameOver || g.pendingPromotion) return;
   if (g.vsComputer && g.turn !== g.playerColor) return;
+  if (g.id === 'online' && g.turn !== g.playerColor) return;
 
   const piece = g.board[rank][file];
   const color = piece ? piece[0] : null;
@@ -3092,16 +3093,17 @@ socket.on('opponent-move', (data) => {
   console.log('Opponent moved:', move);
 
   // Update the game state with opponent's move
-  if (activeGame && activeGame.id === 'online') {
-    activeGame.board = boardState;
-    activeGame.moveHistory = moveHistory;
-    activeGame.moveStrings.push(move);
-    activeGame.turn = activeGame.turn === 'w' ? 'b' : 'w';
-    activeGame.lastMove = null; // Could parse from moveHistory if needed
+  const onlineGame = games['online'];
+  if (onlineGame) {
+    onlineGame.board = boardState;
+    onlineGame.moveHistory = moveHistory;
+    onlineGame.moveStrings = moveHistory.map(m => m.move || move);
+    onlineGame.turn = onlineGame.turn === 'w' ? 'b' : 'w';
+    onlineGame.lastMove = null; // Could parse from moveHistory if needed
 
-    updateMoveList(activeGame);
-    updateStatus(activeGame);
-    renderBoard(activeGame);
+    updateMoveList(onlineGame);
+    updateStatus(onlineGame);
+    renderBoard(onlineGame);
   }
 });
 
