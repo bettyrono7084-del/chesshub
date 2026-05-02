@@ -3090,7 +3090,19 @@ socket.on('search-cancelled', () => {
 socket.on('opponent-move', (data) => {
   const { move, boardState, moveHistory } = data;
   console.log('Opponent moved:', move);
-  // Handle opponent move in your current game
+
+  // Update the game state with opponent's move
+  if (activeGame && activeGame.id === 'online') {
+    activeGame.board = boardState;
+    activeGame.moveHistory = moveHistory;
+    activeGame.moveStrings.push(move);
+    activeGame.turn = activeGame.turn === 'w' ? 'b' : 'w';
+    activeGame.lastMove = null; // Could parse from moveHistory if needed
+
+    updateMoveList(activeGame);
+    updateStatus(activeGame);
+    renderBoard(activeGame);
+  }
 });
 
 socket.on('game-ended', (data) => {
@@ -3202,7 +3214,7 @@ function launchOnlineGame(opp) {
 
   // Create online game with actual player color from server
   if (games['online']) delete games['online'];
-  const g = createGame('online', true, yourColor, 'medium');
+  const g = createGame('online', false, yourColor, 'medium');
   g.opponentName = opp.name;
   g.roomId = currentRoomId;
   g.playerId = currentPlayerId;
