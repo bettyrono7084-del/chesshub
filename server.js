@@ -215,12 +215,22 @@ io.on('connection', (socket) => {
     room.gameState.moves.push(move);
     room.gameState.board = boardState;
     room.gameState.moveHistory = moveHistory;
+    room.gameState.enPassant = data.enPassant;
+    room.gameState.castlingRights = data.castlingRights;
+    room.gameState.lastMove = data.lastMove;
+    room.gameState.captured = data.captured;
+    room.gameState.turn = data.turn;
 
     // Broadcast move to opponent
     socket.to(roomId).emit('opponent-move', {
       move,
       boardState,
-      moveHistory
+      moveHistory,
+      enPassant: data.enPassant,
+      castlingRights: data.castlingRights,
+      lastMove: data.lastMove,
+      captured: data.captured,
+      turn: data.turn
     });
 
     console.log(`Move in room ${roomId}:`, move);
