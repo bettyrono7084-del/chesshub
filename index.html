@@ -1622,8 +1622,43 @@
       font-size: 8vw;
     }
     .piece:active {
-      transform: scale(1.4); /* Scales up the piece so it's visible under the thumb */
+      transform: scale(1.4);
       z-index: 100;
+    }
+
+    /* Inner Page Fixes */
+    .navbar {
+      height: auto;
+      padding: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    .nav-brand {
+      width: 100%;
+      justify-content: center;
+    }
+    .matchmaking-card, .comp-card, .challenge-pending-card {
+      width: 95%;
+      padding: 30px 20px;
+    }
+    .settings-grid {
+      grid-template-columns: 1fr;
+    }
+    .settings-body {
+      padding: 15px;
+    }
+    .friends-page-body {
+      flex-direction: column;
+    }
+    .friends-search-panel {
+      width: 100%;
+      height: 300px;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .game-main {
+      padding: 10px 5px;
     }
   }
 </style>
