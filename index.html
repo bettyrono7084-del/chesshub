@@ -1171,53 +1171,83 @@
     cursor: grab;
   }
 
-  .move-list-container {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
-    max-height: 200px;
-    overflow-y: auto;
-  }
-
-  .move-list-title {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--gold);
-    margin-bottom: 8px;
-  }
-
-  .move-list {
-    font-size: 12px;
-    line-height: 1.6;
-    color: var(--text2);
-  }
-
-  .status-card {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    text-align: center;
-  }
-
-  .status-label {
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: var(--text2);
-    margin-bottom: 8px;
-  }
-
-  .status-text {
-    font-family: 'Cinzel', serif;
-    color: var(--gold);
-    font-size: 18px;
-  }
-
-  .game-right {
+  /* ===== CHAT SYSTEM ===== */
+  .chat-container {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 8px;
+    min-height: 200px;
+    position: relative;
+  }
+  .chat-badge {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gold);
+    color: #0f0e0c;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    display: none;
+    z-index: 5;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+  .chat-badge:hover {
+    background: var(--gold2);
+  }
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .chat-msg {
+    line-height: 1.4;
+    word-break: break-word;
+  }
+  .chat-msg .msg-name {
+    font-weight: 700;
+    color: var(--gold);
+    margin-right: 4px;
+  }
+  .chat-input-wrap {
+    display: flex;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  .chat-input-wrap input {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+  }
+  .chat-input-wrap button {
+    background: var(--gold);
+    border: none;
+    color: #0f0e0c;
+    padding: 0 16px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .chat-input-wrap button:hover {
+    background: var(--gold2);
   }
 
   /* ===== MODAL ===== */
@@ -1664,6 +1694,15 @@
         <div class="status-text" id="online-status">Your Turn</div>
         <div class="opening-name" id="online-opening"></div>
       </div>
+      <div class="chat-container">
+        <div class="move-list-title" style="padding: 8px 12px 0;">Game Chat</div>
+        <div class="chat-messages" id="online-chat-msgs"></div>
+        <div class="chat-badge" id="online-chat-badge" onclick="scrollToBottom('online')">New Messages ↓</div>
+        <div class="chat-input-wrap">
+          <input type="text" id="online-chat-input" placeholder="Say hello..." onkeydown="if(event.key==='Enter') sendChat('online')">
+          <button onclick="sendChat('online')">Send</button>
+        </div>
+      </div>
       <button class="action-btn" onclick="cancelMatchmaking();showOnlineFind()">New Game</button>
       <button class="action-btn secondary" onclick="resignGame()">Resign</button>
       <button class="action-btn secondary" onclick="offerDraw()">Offer Draw</button>
@@ -1863,6 +1902,15 @@
         <div class="status-label">Status</div>
         <div class="status-text" id="friends-status">Your Turn</div>
         <div class="opening-name" id="friends-opening"></div>
+      </div>
+      <div class="chat-container">
+        <div class="move-list-title" style="padding: 8px 12px 0;">Game Chat</div>
+        <div class="chat-messages" id="friends-chat-msgs"></div>
+        <div class="chat-badge" id="friends-chat-badge" onclick="scrollToBottom('friends')">New Messages ↓</div>
+        <div class="chat-input-wrap">
+          <input type="text" id="friends-chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendChat('friends')">
+          <button onclick="sendChat('friends')">Send</button>
+        </div>
       </div>
       <button class="action-btn" onclick="cancelFriendGame()">New Game</button>
       <button class="action-btn secondary" onclick="resignGame()">Resign</button>
@@ -3562,6 +3610,7 @@ function init() {
   activeGame = games['offline'];
   showOnlineFind();
   renderPuzzleGrid();
+  initChatScrollListeners();
 }
 
 init();
