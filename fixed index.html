@@ -3121,7 +3121,7 @@ socket.on('opponent-move', (data) => {
     // Append just this move's notation string (don't rebuild from moveHistory — those objects have no .move field)
     g.moveStrings.push(move);
     // Set turn directly from authoritative server value instead of toggling (toggling breaks if event fires twice)
-    g.turn = turn || (g.turn === 'w' ? 'b' : 'w');
+    if (turn) g.turn = turn;
     // Sync all game-state fields that affect legal-move calculation
     if (enPassant !== undefined) g.enPassant = enPassant;
     if (castlingRights)          g.castlingRights = castlingRights;
@@ -3420,8 +3420,9 @@ function launchFriendGame(p) {
   document.getElementById('friends-game-screen').style.display = 'flex';
 
   if (games['friends']) delete games['friends'];
-  const g = createGame('friends', false, 'w', 'medium');
+  const g = createGame('friends', false, yourColor || 'w', 'medium');
   g.opponentName = p.name;
+  g.roomId = currentRoomId;
   activeGame = g;
 }
 

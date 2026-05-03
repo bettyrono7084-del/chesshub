@@ -3161,7 +3161,7 @@ socket.on('opponent-move', (data) => {
     // Append just this move's notation string (don't rebuild from moveHistory — those objects have no .move field)
     g.moveStrings.push(move);
     // Set turn directly from authoritative server value instead of toggling (toggling breaks if event fires twice)
-    g.turn = turn || (g.turn === 'w' ? 'b' : 'w');
+    if (turn) g.turn = turn;
     // Sync all game-state fields that affect legal-move calculation
     if (enPassant !== undefined) g.enPassant = enPassant;
     if (castlingRights)          g.castlingRights = castlingRights;
@@ -3188,24 +3188,24 @@ socket.on('time-update', (data) => {
   const g = games['online'] || games['friends'];
   if (!g || !g.roomId) return;
   
-  const timers = data.timers;
-  // Server sends timers indexed by playerId. We need to find which is white and which is black.
-  // In our room logic: room.players[0] is white, room.players[1] is black.
-  // However, it's easier to just use the socket to update the UI based on colors assigned at start.
-  
   const whiteTimer = document.getElementById(g.id + '-timer-white');
   const blackTimer = document.getElementById(g.id + '-timer-black');
-  
-  // Since we don't have the room object here, we use the turn to decide which timer updated.
-  // Or we update both based on the server's authoritative values if we know the mapping.
-  // For simplicity, the server should ideally send { w: seconds, b: seconds }
-  // Let's assume the server sends IDs. We'll map them using our known color.
+
+  if (whiteTimer && data.w !== undefined) {
+    whiteTimer.textContent = formatTime(data.w);
+    whiteTimer.classList.toggle('low-time', data.w < 60);
+    whiteTimer.classList.toggle('active', g.turn === 'w');
+  }
+  if (blackTimer && data.b !== undefined) {
+    blackTimer.textContent = formatTime(data.b);
+    blackTimer.classList.toggle('low-time', data.b < 60);
+    blackTimer.classList.toggle('active', g.turn === 'b');
+  }
 });
 
 socket.on('game-ended', (data) => {
   const { result, reason } = data;
   console.log('Game ended:', result, reason);
-  alert(`Game ended: ${result} (${reason})`);
   if (reason === 'timeout') {
     showGameOver(result, 'Time expired ⏱️', activeGame?.id);
   } else {
@@ -3483,8 +3483,9 @@ function launchFriendGame(p) {
   document.getElementById('friends-game-screen').style.display = 'flex';
 
   if (games['friends']) delete games['friends'];
-  const g = createGame('friends', false, 'w', 'medium');
+  const g = createGame('friends', false, yourColor || 'w', 'medium');
   g.opponentName = p.name;
+  g.roomId = currentRoomId;
   activeGame = g;
 }
 

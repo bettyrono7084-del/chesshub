@@ -38,6 +38,13 @@ function generatePlayerId() {
 
 // Matchmaking function - pairs two waiting players
 function tryMatchPlayers() {
+  // Clean queue of dead sockets first to prevent matching with ghost players
+  while (matchmakingQueue.length > 0) {
+    const p = matchmakingQueue[0];
+    if (io.sockets.sockets.has(p.socketId)) break;
+    matchmakingQueue.shift();
+  }
+
   if (matchmakingQueue.length >= 2) {
     const player1 = matchmakingQueue.shift();
     const player2 = matchmakingQueue.shift();
@@ -127,7 +134,8 @@ io.on('connection', (socket) => {
         gameOver: false,
         timers: {
           [user.playerId]: DEFAULT_TIME
-        }
+        },
+        turn: 'w'
       },
       isMatchmade: false
     };
@@ -161,20 +169,25 @@ io.on('connection', (socket) => {
     
     // Initialize joiner timer
     room.gameState.timers[user.playerId] = DEFAULT_TIME;
-    room.gameState.turn = 'w';
 
     socket.join(roomId);
     console.log('Player joined friend room:', roomId);
 
-    // Notify both players that game is starting
-    io.to(roomId).emit('game-started', {
-      players: room.players.map(pid => ({
-        playerId: pid,
-        name: room.playerDetails[pid].name,
-        color: room.players[0] === pid ? 'w' : 'b'
-      })),
-      yourColor: room.players[0] === user.playerId ? 'w' : 'b',
-      playerId: user.playerId
+    // Notify players individually to ensure they get the correct 'yourColor' and 'roomId'
+    const playersData = room.players.map(pid => ({
+      playerId: pid,
+      name: room.playerDetails[pid].name,
+      color: room.players[0] === pid ? 'w' : 'b'
+    }));
+
+    room.sockets.forEach((sid, index) => {
+      const pid = room.players[index];
+      io.to(sid).emit('game-started', {
+        roomId: roomId,
+        players: playersData,
+        yourColor: room.players[0] === pid ? 'w' : 'b',
+        playerId: pid
+      });
     });
   });
 
@@ -358,7 +371,11 @@ setInterval(() => {
             reason: 'timeout'
           });
         } else {
-          io.to(roomId).emit('time-update', { timers });
+          io.to(roomId).emit('time-update', { 
+            timers,
+            w: timers[room.players[0]],
+            b: timers[room.players[1]]
+          });
         }
       }
     }
