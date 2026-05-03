@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1366">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CHECKMATE · PUZZLES</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Cinzel:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -69,6 +69,36 @@
   .action-btn { background: linear-gradient(135deg, var(--gold), #8a6520); border: none; border-radius: 10px; padding: 10px 20px; font-weight: bold; color: #0f0e0c; cursor: pointer; margin: 6px; }
   .action-btn.secondary { background: var(--bg3); border: 1px solid var(--border2); color: var(--text2); }
   .status-text { font-family: 'Cinzel', serif; color: var(--gold); }
+
+  @media (max-width: 800px) {
+    .puzzle-game-layout {
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .puzzle-sidebar, .game-right {
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .chess-board {
+      grid-template-columns: repeat(8, 11.5vw);
+      grid-template-rows: repeat(8, 11.5vw);
+      touch-action: none;
+    }
+    .sq {
+      width: 11.5vw;
+      height: 11.5vw;
+      font-size: 8vw;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .piece {
+      font-size: 8vw;
+    }
+    .piece:active {
+      transform: scale(1.4);
+      z-index: 100;
+    }
+  }
 </style>
 </head>
 <body data-board="default" data-pieces="classic">
@@ -160,6 +190,38 @@
 
 <script>
   // ---------- CHESS ENGINE (lightweight) ----------
+  const settings = {
+    legalMoves: true,
+    highlightLast: true,
+    showCoords: true,
+    checkIndicator: true,
+    haptics: true,
+    sounds: true
+  };
+
+  const moveSound = new Audio('https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/move-self.mp3');
+  const captureSound = new Audio('https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/capture.mp3');
+
+  function playMoveSound(isCapture) {
+    if (!settings.sounds) return;
+    const sound = isCapture ? captureSound : moveSound;
+    sound.currentTime = 0;
+    sound.play().catch(() => {});
+  }
+
+  function saveSettings() {
+    localStorage.setItem('checkmate_settings', JSON.stringify(settings));
+  }
+
+  function loadSettings() {
+    const stored = localStorage.getItem('checkmate_settings');
+    if (stored) {
+      Object.assign(settings, JSON.parse(stored));
+    }
+  }
+
+  loadSettings();
+
   const PIECES_MAP = { wK:'♔', wQ:'♕', wR:'♖', wB:'♗', wN:'♘', wP:'♙', bK:'♚', bQ:'♛', bR:'♜', bB:'♝', bN:'♞', bP:'♟' };
   let currentPuzzleGame = null;   // GameState for active puzzle
   let activePuzzleId = 1;
@@ -167,6 +229,87 @@
   let puzzleSolutions = [];        // store solution SAN sequences
   let completedPuzzles = new Set([1,2,3,4,5]); // demo pre-completed
   let puzzleFilterCat = 'all';
+
+  // Drag and drop state for mobile
+  let touchDrag = { active: false, g: null, el: null, start: null, origin: { x: 0, y: 0 } };
+
+  function getSqAt(x, y) {
+    const el = document.elementFromPoint(x, y);
+    const sq = el?.closest('.sq');
+    if (!sq) return null;
+    return { rank: parseInt(sq.dataset.rank), file: parseInt(sq.dataset.file) };
+  }
+
+  document.addEventListener('touchmove', e => {
+    if (!touchDrag.active) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    const dx = t.clientX - touchDrag.origin.x;
+    const dy = t.clientY - touchDrag.origin.y;
+    touchDrag.el.style.transition = 'none';
+    touchDrag.el.style.transform = `translate(${dx}px, ${dy}px) scale(1.4)`;
+    touchDrag.el.style.zIndex = '1000';
+  }, { passive: false });
+
+  document.addEventListener('touchend', e => {
+    if (!touchDrag.active) return;
+    const t = e.changedTouches[0];
+    const dest = getSqAt(t.clientX, t.clientY);
+    const g = touchDrag.g;
+    const from = touchDrag.start;
+    const el = touchDrag.el;
+
+    const isLegal = dest && g.legalMoves.some(m => m[0] === dest.rank && m[1] === dest.file);
+    
+    // Smooth snap animation
+    el.style.transition = 'transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+    
+    if (isLegal) {
+      const destSq = document.querySelector(`#puzzle-board .sq[data-rank="${dest.rank}"][data-file="${dest.file}"]`);
+      const startRect = el.parentElement.getBoundingClientRect();
+      const destRect = destSq.getBoundingClientRect();
+      
+      const tx = destRect.left - startRect.left;
+      const ty = destRect.top - startRect.top;
+      el.style.transform = `translate(${tx}px, ${ty}px) scale(1)`;
+
+      // Add haptic feedback for mobile
+      if (navigator.vibrate && settings.haptics) {
+        const isCapture = g.board[dest.rank][dest.file] || (g.board[from[0]][from[1]][1] === 'P' && from[1] !== dest.file);
+        
+        // Simulate move to see if it delivers a check
+        const testBoard = g.board.map(r => [...r]);
+        const p = testBoard[from[0]][from[1]];
+        if (p[1] === 'P' && from[1] !== dest.file && !testBoard[dest.rank][dest.file]) testBoard[from[0]][dest.file] = null;
+        testBoard[dest.rank][dest.file] = p;
+        testBoard[from[0]][from[1]] = null;
+        const deliversCheck = isInCheck(testBoard, g.turn === 'w' ? 'b' : 'w');
+
+        if (deliversCheck) {
+          navigator.vibrate([70, 50, 70, 50, 70]); // Triumphant triple pulse
+        } else {
+          navigator.vibrate(isCapture ? [60, 40, 60] : 40);
+        }
+      }
+
+      setTimeout(() => {
+        el.style.transition = '';
+        el.style.transform = '';
+        el.style.zIndex = '';
+        makePuzzleMove(g, from, [dest.rank, dest.file]);
+        if (!g.pendingPromotion) afterPuzzleMove();
+      }, 250);
+    } else {
+      el.style.transform = 'translate(0, 0) scale(1)';
+      setTimeout(() => {
+        el.style.transition = '';
+        el.style.transform = '';
+        el.style.zIndex = '';
+        renderPuzzleBoard(g);
+      }, 250);
+    }
+    touchDrag.active = false;
+  });
 
   // GameState class (simplified but complete)
   class PuzzleGameState {

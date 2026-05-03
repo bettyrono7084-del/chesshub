@@ -2,34 +2,34 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1366">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CHECKMATE</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Cinzel:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f0e0c;
-    --bg2: #1a1814;
-    --bg3: #242018;
-    --panel: #1e1c17;
-    --gold: #c9a84c;
-    --gold2: #e8c96d;
-    --gold3: #f5e0a0;
-    --text: #f0ead6;
-    --text2: #a89f88;
-    --text3: #6b6355;
-    --accent: #8b2c2c;
-    --accent2: #c0392b;
-    --border: #2e2a22;
-    --border2: #3d3830;
-    --teal: #2d7a6e;
-    --shadow: 0 8px 32px rgba(0,0,0,0.6);
-    --shadow2: 0 2px 8px rgba(0,0,0,0.4);
+    --bg: #171511;
+    --bg2: #26221b;
+    --bg3: #2f2a23;
+    --panel: #322b24;
+    --gold: #d3b35b;
+    --gold2: #f2d784;
+    --gold3: #fce3a2;
+    --text: #fbf4e3;
+    --text2: #d7c195;
+    --text3: #b9aa88;
+    --accent: #a63b3b;
+    --accent2: #d15b40;
+    --border: #524739;
+    --border2: #6f6453;
+    --teal: #97bed8;
+    --shadow: 0 8px 32px rgba(0,0,0,0.5);
+    --shadow2: 0 2px 8px rgba(0,0,0,0.3);
     --radius: 12px;
 
     /* Board colors */
-    --board-light: #f0d9b5;
-    --board-dark: #b58863;
-    --board-border: #8B6914;
+    --board-light: #f4dfb7;
+    --board-dark: #c79b66;
+    --board-border: #9c7c37;
 
     /* Piece style */
     --piece-white: #fff;
@@ -66,14 +66,40 @@
 
   /* ===== HOME PAGE ===== */
   #home {
-    width: 1366px;
-    height: 768px;
+    width: 100%;
+    min-height: 100vh;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     position: relative;
     overflow: hidden;
-    background: linear-gradient(135deg, #0f0e0c 0%, #1a1814 40%, #0d1a18 100%);
+    background: linear-gradient(to bottom, #81959c 0%, #8394a1 100%);
+  }
+
+  #home-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  #home-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(255,255,255,0.12), transparent 35%),
+                linear-gradient(to bottom, rgba(20,18,16,0.25), rgba(15,14,12,0.45));
+    pointer-events: none;
+  }
+
+  .home-bg-iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    opacity: 0.35;
+    transform: scale(1.03);
+    filter: saturate(1.2) brightness(0.7) blur(1px);
   }
 
   #home::before {
@@ -81,8 +107,8 @@
     position: absolute;
     inset: 0;
     background-image:
-      repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(201,168,76,0.04) 80px),
-      repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(201,168,76,0.04) 80px);
+      repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(201,168,76,0.06) 80px),
+      repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(201,168,76,0.06) 80px);
     pointer-events: none;
   }
 
@@ -92,7 +118,7 @@
     top: -200px; right: -200px;
     width: 600px; height: 600px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 60%);
     pointer-events: none;
   }
 
@@ -142,9 +168,15 @@
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 36px;
-    box-shadow: 0 0 0 3px rgba(201,168,76,0.4), 0 0 24px rgba(58,143,224,0.3);
+    box-shadow: 0 0 0 4px rgba(201,168,76,0.2), 0 10px 30px rgba(0,0,0,0.5), 0 0 40px rgba(58,143,224,0.2);
     margin-bottom: 16px;
-    border: 2px solid rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.2);
+    animation: knightFloat 4s ease-in-out infinite;
+  }
+
+  @keyframes knightFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
   }
 
   .home-title {
@@ -158,12 +190,13 @@
     background-clip: text;
     text-shadow: none;
     line-height: 1;
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
   }
 
   .home-tagline {
     font-family: 'DM Sans', sans-serif;
     font-size: 13px;
-    letter-spacing: 0.3em;
+    letter-spacing: 0.4em;
     text-transform: uppercase;
     color: var(--text2);
     margin-top: 8px;
@@ -185,8 +218,8 @@
   }
 
   .home-btn {
-    background: rgba(30,28,23,0.85);
-    border: 1px solid var(--border2);
+    background: rgba(31, 43, 209, 0.55);
+    border: 1px solid rgba(70,130,180,0.12);
     border-radius: 14px;
     padding: 18px 28px;
     font-family: 'DM Sans', sans-serif;
@@ -194,11 +227,11 @@
     font-weight: 500;
     color: var(--text);
     cursor: pointer;
-    transition: all 0.22s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     gap: 12px;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(16px);
     position: relative;
     overflow: hidden;
   }
@@ -207,21 +240,22 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(201,168,76,0.08) 0%, transparent 60%);
+    background: linear-gradient(135deg, rgba(70,130,180,0.12) 0%, transparent 60%);
     opacity: 0;
-    transition: opacity 0.22s;
+    transition: opacity 0.3s;
   }
 
   .home-btn:hover::before { opacity: 1; }
 
   .home-btn:hover {
     border-color: var(--gold);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,168,76,0.2);
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,168,76,0.3);
     color: var(--gold3);
+    background: rgba(201, 168, 76, 0.1);
   }
 
-  .home-btn:active { transform: translateY(0); }
+  .home-btn:active { transform: translateY(-2px) scale(0.98); }
 
   .btn-icon {
     width: 36px; height: 36px;
@@ -1554,12 +1588,53 @@
   @keyframes pulse { 0%,80%,100%{transform:scale(0.6);opacity:0.4;} 40%{transform:scale(1);opacity:1;} }
   #friends-game-screen { display:none; flex:1; overflow:hidden; }
 
+  /* Mobile Responsiveness */
+  @media (max-width: 850px) {
+    .home-buttons {
+      width: 90%;
+      grid-template-columns: 1fr;
+    }
+    .home-title {
+      font-size: 42px;
+      letter-spacing: 0.1em;
+    }
+    .game-layout {
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .game-sidebar, .game-right {
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .chess-board {
+      grid-template-columns: repeat(8, 11.5vw);
+      grid-template-rows: repeat(8, 11.5vw);
+      touch-action: none; /* Prevents the screen from scrolling while moving pieces */
+    }
+    .sq {
+      width: 11.5vw;
+      height: 11.5vw;
+      font-size: 8vw;
+      -webkit-tap-highlight-color: transparent; /* Removes the default tap box highlight */
+    }
+    .piece {
+      font-size: 8vw;
+    }
+    .piece:active {
+      transform: scale(1.4); /* Scales up the piece so it's visible under the thumb */
+      z-index: 100;
+    }
+  }
 </style>
 </head>
 <body data-board="default" data-pieces="hammurabi">
 
 <!-- ===== HOME PAGE ===== -->
 <div id="home" class="page active">
+  <div id="home-bg">
+    <iframe class="home-bg-iframe" src="Animation.html" tabindex="-1" aria-hidden="true"></iframe>
+  </div>
   <div class="home-logo-area">
     <div class="knight-icon">♞</div>
     <div class="home-title">CHECKMATE</div>
@@ -2078,7 +2153,7 @@
             <div class="setting-sub">Toggle light and dark theme</div>
           </div>
           <label class="toggle">
-            <input type="checkbox" id="toggle-dark" checked onchange="applyDarkMode(this.checked)">
+            <input type="checkbox" id="toggle-dark" checked onchange="applyDarkMode(this.checked);saveSettings()">
             <div class="toggle-track"></div>
             <div class="toggle-thumb"></div>
           </label>
@@ -2095,7 +2170,7 @@
           </div>
           <div style="display:flex;align-items:center;gap:10px;">
             <div class="board-preview" id="board-preview"></div>
-            <select class="settings-select" id="board-select" onchange="applyBoardTheme(this.value)">
+            <select class="settings-select" id="board-select" onchange="applyBoardTheme(this.value);saveSettings()">
               <option value="default">Classic</option>
               <option value="bw">Black &amp; White</option>
               <option value="vintage">Vintage</option>
@@ -2113,7 +2188,7 @@
               <span id="pp-white" style="color:#f5f0e0;filter:drop-shadow(0 1px 0 #888)">♔</span>
               <span id="pp-black" style="color:#1a1814;filter:drop-shadow(0 1px 0 rgba(255,255,255,0.2))">♚</span>
             </div>
-            <select class="settings-select" id="pieces-select" onchange="applyPieceTheme(this.value)">
+            <select class="settings-select" id="pieces-select" onchange="applyPieceTheme(this.value);saveSettings()">
               <option value="classic">Classic</option>
               <option value="flame">Flame</option>
               <option value="rainbow">Rainbow</option>
@@ -2130,7 +2205,7 @@
         <div class="setting-row">
           <div class="setting-label">Show Legal Moves</div>
           <label class="toggle">
-            <input type="checkbox" id="toggle-legal" checked onchange="settings.legalMoves=this.checked">
+            <input type="checkbox" id="toggle-legal" checked onchange="settings.legalMoves=this.checked;saveSettings()">
             <div class="toggle-track"></div>
             <div class="toggle-thumb"></div>
           </label>
@@ -2138,7 +2213,7 @@
         <div class="setting-row">
           <div class="setting-label">Highlight Last Move</div>
           <label class="toggle">
-            <input type="checkbox" id="toggle-highlight" checked onchange="settings.highlightLast=this.checked">
+            <input type="checkbox" id="toggle-highlight" checked onchange="settings.highlightLast=this.checked;saveSettings()">
             <div class="toggle-track"></div>
             <div class="toggle-thumb"></div>
           </label>
@@ -2146,7 +2221,7 @@
         <div class="setting-row">
           <div class="setting-label">Show Coordinates</div>
           <label class="toggle">
-            <input type="checkbox" id="toggle-coords" checked onchange="settings.showCoords=this.checked;renderAllBoards()">
+            <input type="checkbox" id="toggle-coords" checked onchange="settings.showCoords=this.checked;renderAllBoards();saveSettings()">
             <div class="toggle-track"></div>
             <div class="toggle-thumb"></div>
           </label>
@@ -2154,7 +2229,7 @@
         <div class="setting-row">
           <div class="setting-label">King in Check Indicator</div>
           <label class="toggle">
-            <input type="checkbox" id="toggle-check" checked onchange="settings.checkIndicator=this.checked">
+            <input type="checkbox" id="toggle-check" checked onchange="settings.checkIndicator=this.checked;saveSettings()">
             <div class="toggle-track"></div>
             <div class="toggle-thumb"></div>
           </label>
@@ -2162,7 +2237,7 @@
         <div class="setting-row">
           <div class="setting-label">Always Promote to Queen</div>
           <label class="toggle">
-            <input type="checkbox" id="toggle-promote" checked onchange="settings.autoQueen=this.checked">
+            <input type="checkbox" id="toggle-promote" checked onchange="settings.autoQueen=this.checked;saveSettings()">
             <div class="toggle-track"></div>
             <div class="toggle-thumb"></div>
           </label>
@@ -2170,7 +2245,7 @@
         <div class="setting-row">
           <div class="setting-label">Show Opening Names</div>
           <label class="toggle">
-            <input type="checkbox" id="toggle-openings" checked onchange="settings.openingNames=this.checked">
+            <input type="checkbox" id="toggle-openings" checked onchange="settings.openingNames=this.checked;saveSettings()">
             <div class="toggle-track"></div>
             <div class="toggle-thumb"></div>
           </label>
@@ -2186,7 +2261,18 @@
             <div class="setting-sub">Sound on piece movement</div>
           </div>
           <label class="toggle">
-            <input type="checkbox" id="toggle-sounds" checked onchange="settings.sounds=this.checked">
+            <input type="checkbox" id="toggle-sounds" checked onchange="settings.sounds=this.checked;saveSettings()">
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Haptic Feedback</div>
+            <div class="setting-sub">Vibrate on mobile moves</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="toggle-haptics" checked onchange="settings.haptics=this.checked;saveSettings()">
             <div class="toggle-track"></div>
             <div class="toggle-thumb"></div>
           </label>
@@ -2197,11 +2283,51 @@
             <div class="setting-sub">Ambient chess music</div>
           </div>
           <label class="toggle">
-            <input type="checkbox" id="toggle-music" onchange="toggleMusic(this.checked)">
+            <input type="checkbox" id="toggle-music" onchange="toggleMusic(this.checked);saveSettings()">
             <div class="toggle-track"></div>
             <div class="toggle-thumb"></div>
           </label>
         </div>
+      </div>
+
+      <!-- Account / Login -->
+      <div class="settings-card full-width" id="account-card">
+        <div class="card-title">🔐 Account</div>
+        <div class="setting-row" style="flex-wrap:wrap;justify-content:space-between;gap:12px;">
+          <div>
+            <div class="setting-label">Account access</div>
+            <div class="setting-sub">Create an account or log in if one already exists.</div>
+          </div>
+          <div id="account-status" class="setting-sub" style="text-align:right;min-width:180px;color:var(--text2);"></div>
+        </div>
+
+        <div id="account-logged-in" style="display:none;">
+          <div class="setting-row" style="justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div class="setting-label">Logged in as <strong id="account-name-display">Player</strong></div>
+            <button class="action-btn secondary" style="max-width:180px;" onclick="logoutAccount()">Logout</button>
+          </div>
+        </div>
+
+        <div id="account-login" style="display:none;">
+          <input class="profile-input" id="account-login-username" type="text" placeholder="Username">
+          <input class="profile-input" id="account-login-password" type="password" placeholder="Password">
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="action-btn" style="max-width:180px;" onclick="loginAccount()">Login</button>
+            <button class="action-btn secondary" style="max-width:180px;" onclick="showCreateAccount()">Create account</button>
+          </div>
+        </div>
+
+        <div id="account-create" style="display:none;">
+          <input class="profile-input" id="account-create-username" type="text" placeholder="Choose a username">
+          <input class="profile-input" id="account-create-password" type="password" placeholder="Password">
+          <input class="profile-input" id="account-create-password-confirm" type="password" placeholder="Confirm password">
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="action-btn" style="max-width:180px;" onclick="createAccount()">Create account</button>
+            <button class="action-btn secondary" style="max-width:180px;" onclick="showLoginAccount()">Already have account</button>
+          </div>
+        </div>
+
+        <div id="account-message" class="setting-sub" style="min-height:22px;color:var(--text2);"></div>
       </div>
 
       <!-- Player Profile -->
@@ -2281,10 +2407,53 @@ const settings = {
   checkIndicator: true,
   autoQueen: true,
   openingNames: true,
+  haptics: true,
   sounds: true,
   music: false,
-  darkMode: true
+  darkMode: true,
+  boardTheme: 'default',
+  pieceTheme: 'classic'
 };
+
+const moveSound = new Audio('https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/move-self.mp3');
+const captureSound = new Audio('https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/capture.mp3');
+
+function playMoveSound(isCapture) {
+  if (!settings.sounds) return;
+  const sound = isCapture ? captureSound : moveSound;
+  sound.currentTime = 0;
+  sound.play().catch(() => {});
+}
+
+function saveSettings() {
+  localStorage.setItem('checkmate_settings', JSON.stringify(settings));
+}
+
+function loadSettings() {
+  const stored = localStorage.getItem('checkmate_settings');
+  if (stored) {
+    Object.assign(settings, JSON.parse(stored));
+  }
+  // Apply settings to UI/Visuals
+  applyDarkMode(settings.darkMode);
+  applyBoardTheme(settings.boardTheme);
+  applyPieceTheme(settings.pieceTheme);
+  toggleMusic(settings.music);
+
+  // Update controls
+  if(document.getElementById('toggle-dark')) document.getElementById('toggle-dark').checked = settings.darkMode;
+  if(document.getElementById('toggle-legal')) document.getElementById('toggle-legal').checked = settings.legalMoves;
+  if(document.getElementById('toggle-highlight')) document.getElementById('toggle-highlight').checked = settings.highlightLast;
+  if(document.getElementById('toggle-coords')) document.getElementById('toggle-coords').checked = settings.showCoords;
+  if(document.getElementById('toggle-check')) document.getElementById('toggle-check').checked = settings.checkIndicator;
+  if(document.getElementById('toggle-promote')) document.getElementById('toggle-promote').checked = settings.autoQueen;
+  if(document.getElementById('toggle-openings')) document.getElementById('toggle-openings').checked = settings.openingNames;
+  if(document.getElementById('toggle-sounds')) document.getElementById('toggle-sounds').checked = settings.sounds;
+  if(document.getElementById('toggle-haptics')) document.getElementById('toggle-haptics').checked = settings.haptics;
+  if(document.getElementById('toggle-music')) document.getElementById('toggle-music').checked = settings.music;
+  if(document.getElementById('board-select')) document.getElementById('board-select').value = settings.boardTheme;
+  if(document.getElementById('pieces-select')) document.getElementById('pieces-select').value = settings.pieceTheme;
+}
 
 function toggleMusic(enabled) {
   settings.music = enabled;
@@ -2304,11 +2473,188 @@ function toggleMusic(enabled) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  const musicToggle = document.getElementById('toggle-music');
-  if (musicToggle) {
-    musicToggle.checked = settings.music;
-  }
+  loadSettings();
+  initAccountSection();
+  populateProfileFromStorage();
 });
+
+// ===== ACCOUNT STORAGE =====
+const ACCOUNT_STORAGE_KEY = 'checkmate_account';
+const ACCOUNT_SESSION_KEY = 'checkmate_logged_in';
+
+function getStoredAccount() {
+  try {
+    return JSON.parse(localStorage.getItem(ACCOUNT_STORAGE_KEY)) || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function setStoredAccount(account) {
+  localStorage.setItem(ACCOUNT_STORAGE_KEY, JSON.stringify(account));
+}
+
+function getLoggedInUsername() {
+  return localStorage.getItem(ACCOUNT_SESSION_KEY);
+}
+
+function setLoggedInUsername(username) {
+  if (username) {
+    localStorage.setItem(ACCOUNT_SESSION_KEY, username);
+  } else {
+    localStorage.removeItem(ACCOUNT_SESSION_KEY);
+  }
+}
+
+function initAccountSection() {
+  const storedAccount = getStoredAccount();
+  const loggedInUser = getLoggedInUsername();
+  document.getElementById('account-message').textContent = '';
+
+  if (storedAccount && loggedInUser === storedAccount.username) {
+    showLoggedInState(storedAccount.username);
+    applyAccountToProfile(storedAccount);
+    return;
+  }
+
+  if (storedAccount) {
+    showLoginAccount();
+    document.getElementById('account-status').textContent = 'Account exists. Please sign in.';
+    return;
+  }
+
+  showCreateAccount();
+  document.getElementById('account-status').textContent = 'No account found. Create one to save your profile.';
+}
+
+function showLoginAccount() {
+  document.getElementById('account-login').style.display = 'block';
+  document.getElementById('account-create').style.display = 'none';
+  document.getElementById('account-logged-in').style.display = 'none';
+  document.getElementById('account-message').textContent = '';
+}
+
+function showCreateAccount() {
+  document.getElementById('account-login').style.display = 'none';
+  document.getElementById('account-create').style.display = 'block';
+  document.getElementById('account-logged-in').style.display = 'none';
+  document.getElementById('account-message').textContent = '';
+}
+
+function showLoggedInState(username) {
+  document.getElementById('account-login').style.display = 'none';
+  document.getElementById('account-create').style.display = 'none';
+  document.getElementById('account-logged-in').style.display = 'block';
+  document.getElementById('account-name-display').textContent = username;
+  document.getElementById('account-status').textContent = 'Logged in.';
+  document.getElementById('account-message').textContent = '';
+}
+
+function createAccount() {
+  const username = document.getElementById('account-create-username').value.trim();
+  const password = document.getElementById('account-create-password').value;
+  const confirm = document.getElementById('account-create-password-confirm').value;
+  const message = document.getElementById('account-message');
+
+  if (!username || !password || !confirm) {
+    message.textContent = 'Please fill in all fields to create an account.';
+    return;
+  }
+  if (password !== confirm) {
+    message.textContent = 'Passwords do not match.';
+    return;
+  }
+
+  if (getStoredAccount()) {
+    message.textContent = 'An account already exists. Please log in instead.';
+    showLoginAccount();
+    return;
+  }
+
+  const account = {
+    username,
+    password,
+    profile: {
+      name: username,
+      bio: '',
+      elo: 1200,
+      wins: 0,
+      losses: 0,
+      draws: 0
+    }
+  };
+
+  setStoredAccount(account);
+  setLoggedInUsername(username);
+  showLoggedInState(username);
+  applyAccountToProfile(account);
+  message.textContent = 'Account created successfully.';
+}
+
+function loginAccount() {
+  const username = document.getElementById('account-login-username').value.trim();
+  const password = document.getElementById('account-login-password').value;
+  const storedAccount = getStoredAccount();
+  const message = document.getElementById('account-message');
+
+  if (!storedAccount) {
+    message.textContent = 'No account exists yet. Please create one.';
+    showCreateAccount();
+    return;
+  }
+
+  if (username !== storedAccount.username || password !== storedAccount.password) {
+    message.textContent = 'Incorrect username or password.';
+    return;
+  }
+
+  setLoggedInUsername(username);
+  showLoggedInState(username);
+  applyAccountToProfile(storedAccount);
+  message.textContent = 'Logged in successfully.';
+}
+
+function logoutAccount() {
+  setLoggedInUsername(null);
+  document.getElementById('account-status').textContent = 'Signed out. You can log in again.';
+  showLoginAccount();
+}
+
+function applyAccountToProfile(account) {
+  if (!account?.profile) return;
+  document.getElementById('profile-name').value = account.profile.name || account.username;
+  document.getElementById('profile-bio').value = account.profile.bio || '';
+}
+
+function populateProfileFromStorage() {
+  const storedAccount = getStoredAccount();
+  const loggedInUser = getLoggedInUsername();
+
+  if (storedAccount && loggedInUser === storedAccount.username) {
+    applyAccountToProfile(storedAccount);
+  }
+}
+
+function saveProfile() {
+  const name = document.getElementById('profile-name').value.trim();
+  const bio = document.getElementById('profile-bio').value.trim();
+  const loggedInUser = getLoggedInUsername();
+  const message = document.getElementById('account-message');
+
+  if (loggedInUser) {
+    const storedAccount = getStoredAccount();
+    if (storedAccount && storedAccount.username === loggedInUser) {
+      storedAccount.profile.name = name || storedAccount.username;
+      storedAccount.profile.bio = bio;
+      setStoredAccount(storedAccount);
+      message.textContent = 'Profile updated for ' + storedAccount.username + '.';
+      return;
+    }
+  }
+
+  localStorage.setItem('checkmate_profile', JSON.stringify({ name, bio }));
+  alert('Profile saved! Welcome, ' + name + '!');
+}
 
 // ===== OPENINGS DB =====
 const openings = {
@@ -2372,6 +2718,97 @@ const games = {};
 let activeGame = null;
 let currentFriend = null;
 
+// Drag and drop state for mobile
+let touchDrag = { active: false, g: null, el: null, mode: 'main', start: null, origin: { x: 0, y: 0 } };
+
+function getSqAt(x, y) {
+  const el = document.elementFromPoint(x, y);
+  const sq = el?.closest('.sq');
+  if (!sq) return null;
+  return { rank: parseInt(sq.dataset.rank), file: parseInt(sq.dataset.file) };
+}
+
+document.addEventListener('touchmove', e => {
+  if (!touchDrag.active) return;
+  e.preventDefault();
+  const t = e.touches[0];
+  const dx = t.clientX - touchDrag.origin.x;
+  const dy = t.clientY - touchDrag.origin.y;
+  touchDrag.el.style.transition = 'none';
+  touchDrag.el.style.transform = `translate(${dx}px, ${dy}px) scale(1.4)`;
+  touchDrag.el.style.zIndex = '1000';
+}, { passive: false });
+
+document.addEventListener('touchend', e => {
+  if (!touchDrag.active) return;
+  const t = e.changedTouches[0];
+  const dest = getSqAt(t.clientX, t.clientY);
+  const g = touchDrag.g;
+  const from = touchDrag.start;
+  const el = touchDrag.el;
+  const mode = touchDrag.mode;
+
+  const isLegal = dest && g.legalMoves.some(m => m[0] === dest.rank && m[1] === dest.file);
+  
+  // Smooth snap animation using a "back-out" easing for a tactile feel
+  el.style.transition = 'transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+  
+  if (isLegal) {
+    const boardId = mode === 'puzzle' ? 'puzzle-board' : 'board-' + g.id;
+    const destSq = document.querySelector(`#${boardId} .sq[data-rank="${dest.rank}"][data-file="${dest.file}"]`);
+    const startRect = el.parentElement.getBoundingClientRect();
+    const destRect = destSq.getBoundingClientRect();
+    
+    // Calculate translation to the exact center of the destination square
+    const tx = destRect.left - startRect.left;
+    const ty = destRect.top - startRect.top;
+    el.style.transform = `translate(${tx}px, ${ty}px) scale(1)`;
+
+    // Add haptic feedback for mobile
+    if (navigator.vibrate && settings.haptics) {
+      const isCapture = g.board[dest.rank][dest.file] || (g.board[from[0]][from[1]][1] === 'P' && from[1] !== dest.file);
+      
+      // Simulate move to see if it delivers a check (rewarding feedback)
+      const testBoard = g.board.map(r => [...r]);
+      const p = testBoard[from[0]][from[1]];
+      if (p[1] === 'P' && from[1] !== dest.file && !testBoard[dest.rank][dest.file]) testBoard[from[0]][dest.file] = null;
+      testBoard[dest.rank][dest.file] = p;
+      testBoard[from[0]][from[1]] = null;
+      const deliversCheck = isInCheck(testBoard, g.turn === 'w' ? 'b' : 'w');
+
+      if (deliversCheck) {
+        navigator.vibrate([70, 50, 70, 50, 70]); // Triumphant triple pulse
+      } else {
+        navigator.vibrate(isCapture ? [60, 40, 60] : 40);
+      }
+    }
+
+    setTimeout(() => {
+      el.style.transition = '';
+      el.style.transform = '';
+      el.style.zIndex = '';
+      if (mode === 'puzzle') {
+        if (makePuzzleMove(g, from, [dest.rank, dest.file]) && !g.pendingPromotion) {
+          afterPuzzleMove();
+        }
+      } else {
+        makeMove(g, from, [dest.rank, dest.file]);
+      }
+    }, 250);
+  } else {
+    // Smoothly return to origin square if the move was invalid
+    el.style.transform = 'translate(0, 0) scale(1)';
+    setTimeout(() => {
+      el.style.transition = '';
+      el.style.transform = '';
+      el.style.zIndex = '';
+      if (mode === 'puzzle') renderPuzzleBoard(g);
+      else renderBoard(g);
+    }, 250);
+  }
+  touchDrag.active = false;
+});
+
 function createGame(id, vsComputer = false, playerColor = 'w', difficulty = 'easy') {
   const g = new GameState(id, vsComputer, playerColor, difficulty);
   games[id] = g;
@@ -2408,6 +2845,27 @@ function renderBoard(g) {
         pieceEl.className = 'piece ' + (piece[0] === 'w' ? 'white-piece' : 'black-piece');
         pieceEl.textContent = PIECES[piece];
         sq.appendChild(pieceEl);
+
+        // Add touch drag support
+        pieceEl.addEventListener('touchstart', e => {
+          if (g.gameOver || g.pendingPromotion) return;
+          if ((g.id === 'online' || g.id === 'friends') && g.turn !== g.playerColor) return;
+          if (g.vsComputer && g.turn !== g.playerColor) return;
+          if (piece[0] !== g.turn) return;
+
+          const t = e.touches[0];
+          touchDrag = { active: true, g, el: pieceEl, mode: 'main', start: [rank, file], origin: { x: t.clientX, y: t.clientY } };
+          g.selected = [rank, file];
+          g.legalMoves = getLegalMoves(g, rank, file);
+
+          // Highlight moves immediately
+          document.querySelectorAll(`#board-${g.id} .sq`).forEach(s => {
+            const r = parseInt(s.dataset.rank), f = parseInt(s.dataset.file);
+            s.classList.toggle('selected', r === rank && f === file);
+            const isLegal = g.legalMoves.some(m => m[0] === r && m[1] === f);
+            if (isLegal) s.classList.add(g.board[r][f] ? 'legal-capture' : 'legal-move');
+          });
+        }, { passive: false });
       }
 
       // Highlights
@@ -2510,6 +2968,9 @@ function makeMove(g, from, to, promotion = 'Q') {
   const captured = g.board[to[0]][to[1]];
   const color = piece[0];
   const type = piece[1];
+
+  const isCapture = !!captured || (type === 'P' && from[1] !== to[1]);
+  playMoveSound(isCapture);
 
   // Record for history
   const moveStr = getMoveString(g, from, to, piece, captured, promotion);
@@ -2914,6 +3375,10 @@ function updateStatus(g) {
 
   if (isInCheck(g.board, g.turn)) {
     statusEl.textContent = turnName + ' is in Check!';
+    // Warning vibration when player is put in check by opponent
+    if (navigator.vibrate && settings.haptics && g.turn === g.playerColor) {
+      navigator.vibrate([150, 100, 150]);
+    }
   }
 
   // Opening name
@@ -2992,6 +3457,7 @@ function applyDarkMode(isDark) {
 
 function applyBoardTheme(theme) {
   document.body.setAttribute('data-board', theme);
+  settings.boardTheme = theme;
   updateBoardPreview(theme);
 }
 
@@ -3035,11 +3501,6 @@ function updateBoardPreview(theme) {
       preview.appendChild(sq);
     }
   }
-}
-
-function saveProfile() {
-  const name = document.getElementById('profile-name').value;
-  alert('Profile saved! Welcome, ' + name + '!');
 }
 
 // ===== PUZZLES =====
@@ -3097,7 +3558,23 @@ function puzzleSuccess(win, msg){ if(win){ completedPuzzles.add(activePuzzleId);
 function updatePuzzleStatus(){ document.getElementById('puzzle-status-label').innerHTML = currentPuzzleGame.turn=='w'?"White to move":"Black to move"; renderPuzzleBoard(currentPuzzleGame); }
 
 // Rendering puzzle board
-function renderPuzzleBoard(g){ const boardDiv=document.getElementById('puzzle-board'); if(!boardDiv)return; boardDiv.innerHTML=''; for(let r=0;r<8;r++){ for(let f=0;f<8;f++){ const sq=document.createElement('div'); sq.className='sq '+((r+f)%2===0?'light':'dark'); const piece=g.board[r][f]; if(piece){ const pieceSpan=document.createElement('span'); pieceSpan.className='piece '+(piece[0]=='w'?'white-piece':'black-piece'); pieceSpan.textContent=PIECES_MAP[piece]; sq.appendChild(pieceSpan); } sq.addEventListener('click', (function(rr,ff){ return function(){ handlePuzzleClick(rr,ff); }; })(r,f)); boardDiv.appendChild(sq); } } }
+function renderPuzzleBoard(g){ const boardDiv=document.getElementById('puzzle-board'); if(!boardDiv)return; boardDiv.innerHTML=''; for(let r=0;r<8;r++){ for(let f=0;f<8;f++){ const sq=document.createElement('div'); sq.className='sq '+((r+f)%2===0?'light':'dark'); sq.dataset.rank = r; sq.dataset.file = f; const piece=g.board[r][f]; if(piece){ const pieceSpan=document.createElement('span'); pieceSpan.className='piece '+(piece[0]=='w'?'white-piece':'black-piece'); pieceSpan.textContent=PIECES_MAP[piece]; sq.appendChild(pieceSpan);
+        pieceSpan.addEventListener('touchstart', e => {
+          if (g.gameOver || g.pendingPromotion) return;
+          if (piece[0] !== g.turn) return;
+          const t = e.touches[0];
+          touchDrag = { active: true, g, el: pieceSpan, mode: 'puzzle', start: [r, f], origin: { x: t.clientX, y: t.clientY } };
+          g.selected = [r, f];
+          g.legalMoves = getLegalMovesForPiece(g, r, f);
+          document.querySelectorAll('#puzzle-board .sq').forEach(s => {
+            const rr = parseInt(s.dataset.rank), ff = parseInt(s.dataset.file);
+            s.classList.toggle('selected', rr === r && ff === f);
+            const isLegal = g.legalMoves.some(m => m[0] === rr && m[1] === ff);
+            if (isLegal) s.classList.add(g.board[rr][ff] ? 'legal-capture' : 'legal-move');
+          });
+        }, { passive: false });
+      } if(g.selected && g.selected[0]===r && g.selected[1]===f) sq.classList.add('selected'); if(settings.legalMoves && g.selected){ const isLegal=g.legalMoves.some(m=>m[0]===r && m[1]===f); if(isLegal) sq.classList.add(g.board[r][f] ? 'legal-capture' : 'legal-move'); } if(settings.checkIndicator && isInCheck(g.board, g.turn)){ const kingPos=findKing(g.board, g.turn); if(kingPos && kingPos[0]===r && kingPos[1]===f) sq.classList.add('in-check'); }
+      sq.addEventListener('click', (function(rr,ff){ return function(){ handlePuzzleClick(rr,ff); }; })(r,f)); boardDiv.appendChild(sq); } } }
 function handlePuzzleClick(r,f){ if(!currentPuzzleGame || currentPuzzleGame.gameOver) return; const piece=currentPuzzleGame.board[r][f]; if(currentPuzzleGame.selected){ const isLegal=currentPuzzleGame.legalMoves.some(([tr,tf])=>tr===r&&tf===f); if(isLegal){ makePuzzleMove(currentPuzzleGame, currentPuzzleGame.selected, [r,f]); if(!currentPuzzleGame.pendingPromotion) afterPuzzleMove(); currentPuzzleGame.selected=null; currentPuzzleGame.legalMoves=[]; renderPuzzleBoard(currentPuzzleGame); return; } else { currentPuzzleGame.selected=null; currentPuzzleGame.legalMoves=[]; renderPuzzleBoard(currentPuzzleGame); } } if(piece && piece[0]===currentPuzzleGame.turn){ currentPuzzleGame.selected=[r,f]; currentPuzzleGame.legalMoves=getLegalMovesForPiece(currentPuzzleGame,r,f); renderPuzzleBoard(currentPuzzleGame); } }
 function resetCurrentPuzzle(){ loadPuzzleById(activePuzzleId); }
 function showPuzzleHint(){ if(puzzleSolutions[activePuzzleId] && puzzleSolutions[activePuzzleId].length){ alert(`Hint: First move → ${puzzleSolutions[activePuzzleId][0]}`); } else alert("Try delivering checkmate, think of checks and king moves."); }
@@ -3212,6 +3689,7 @@ socket.on('opponent-move', (data) => {
     // Append just this move's notation string (don't rebuild from moveHistory — those objects have no .move field)
     g.moveStrings.push(move);
     // Set turn directly from authoritative server value instead of toggling (toggling breaks if event fires twice)
+    playMoveSound(move.includes('x'));
     if (turn) g.turn = turn;
     // Sync all game-state fields that affect legal-move calculation
     if (enPassant !== undefined) g.enPassant = enPassant;
