@@ -2958,6 +2958,9 @@ function resignGame() {
   if (activeGame) {
     showGameOver('You Resigned', 'Better luck next time!', activeGame.id);
     activeGame.gameOver = true;
+    if ((activeGame.id === 'online' || activeGame.id === 'friends') && activeGame.roomId) {
+      socket.emit('resign', { roomId: activeGame.roomId });
+    }
   }
 }
 
@@ -3262,7 +3265,8 @@ socket.on('game-ended', (data) => {
 });
 
 socket.on('opponent-resigned', () => {
-  alert('Opponent resigned. You win!');
+  showGameOver('Opponent Resigned', 'You won by giving up!', activeGame ? activeGame.id : 'online');
+  if (activeGame) activeGame.gameOver = true;
 });
 
 socket.on('opponent-disconnected', () => {
@@ -3382,6 +3386,65 @@ function cancelMatchmaking() {
   if (socket && socket.connected) {
     socket.emit('cancel-search');
   }
+}
+
+// ===== CHAT FUNCTIONS =====
+function sendChat(gameId) {
+  const g = games[gameId];
+  const input = document.getElementById(gameId + '-chat-input');
+  if (!g || !g.roomId || !input || !input.value.trim()) return;
+
+  socket.emit('send-chat', {
+    roomId: g.roomId,
+    message: input.value.trim()
+  });
+  input.value = '';
+}
+
+socket.on('receive-chat', (data) => {
+  const { playerName, message } = data;
+  // Detect which game screen is active to append message to correct container
+  if (document.getElementById('online-game-screen').style.display === 'flex') {
+    appendChatMessage('online', playerName, message);
+  } else if (document.getElementById('friends-game-screen').style.display === 'flex') {
+    appendChatMessage('friends', playerName, message);
+  }
+});
+
+function appendChatMessage(gameId, name, msg) {
+  const container = document.getElementById(gameId + '-chat-msgs');
+  const badge = document.getElementById(gameId + '-chat-badge');
+  if (!container || !badge) return;
+  const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+  const msgEl = document.createElement('div');
+  msgEl.className = 'chat-msg';
+  msgEl.innerHTML = `<span class="msg-name">${name}:</span><span class="msg-text">${msg}</span>`;
+  container.appendChild(msgEl);
+  if (isAtBottom) {
+    container.scrollTop = container.scrollHeight;
+    badge.style.display = 'none';
+  } else {
+    badge.style.display = 'block';
+  }
+}
+
+function scrollToBottom(gameId) {
+  const container = document.getElementById(gameId + '-chat-msgs');
+  const badge = document.getElementById(gameId + '-chat-badge');
+  if (container) container.scrollTop = container.scrollHeight;
+  if (badge) badge.style.display = 'none';
+}
+
+function initChatScrollListeners() {
+  ['online', 'friends'].forEach(id => {
+    const container = document.getElementById(id + '-chat-msgs');
+    const badge = document.getElementById(id + '-chat-badge');
+    if (!container || !badge) return;
+    container.addEventListener('scroll', () => {
+      const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 20;
+      if (isAtBottom) badge.style.display = 'none';
+    });
+  });
 }
 
 // ===== FRIENDS (Play with Friends) =====
