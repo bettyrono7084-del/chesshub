@@ -1608,25 +1608,36 @@
       border-bottom: 1px solid var(--border);
     }
     .chess-board {
-      grid-template-columns: repeat(8, 11.5vw);
-      grid-template-rows: repeat(8, 11.5vw);
+      width: 320px;
+      height: 320px;
+      grid-template-columns: repeat(8, 40px);
+      grid-template-rows: repeat(8, 40px);
       touch-action: none; /* Prevents the screen from scrolling while moving pieces */
     }
     .sq {
-      width: 11.5vw;
-      height: 11.5vw;
-      font-size: 8vw;
+      width: 40px;
+      height: 40px;
+      font-size: 32px;
       -webkit-tap-highlight-color: transparent; /* Removes the default tap box highlight */
     }
     .piece {
-      font-size: 8vw;
+      font-size: 32px;
     }
     .piece:active {
       transform: scale(1.4);
       z-index: 100;
     }
-
-    /* Inner Page Fixes */
+    .move-list, #puzzle-move-list {
+      max-height: none;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: nowrap;
+      font-size: 11px;
+      padding: 4px;
+    }
+    .game-right {
+      display: none;
+    }
     .navbar {
       height: auto;
       padding: 10px;
@@ -1685,25 +1696,9 @@
     <div class="home-tagline">The ultimate chess experience</div>
   </div>
   <div class="home-buttons">
-    <button class="home-btn" onclick="showPage('play-online')">
-      <div class="btn-icon">🌐</div>
-      <span>Play Online</span>
-    </button>
     <button class="home-btn" onclick="showPage('play-computer')">
       <div class="btn-icon">🤖</div>
       <span>Play with Computer</span>
-    </button>
-    <button class="home-btn" onclick="showPage('play-friends')">
-      <div class="btn-icon">👥</div>
-      <span>Play with Friends</span>
-    </button>
-    <button class="home-btn" onclick="showPage('puzzles')">
-      <div class="btn-icon">🧩</div>
-      <span>Chess Puzzles</span>
-    </button>
-    <button class="home-btn" onclick="showPage('play-offline')">
-      <div class="btn-icon">⚡</div>
-      <span>Play Offline</span>
     </button>
     <button class="home-btn" onclick="showPage('settings')">
       <div class="btn-icon">⚙️</div>
