@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Chess – Checkmate!</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d1b2a;
+    font-family: 'Rajdhani', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+  }
+
+  .phone {
+    width: 390px;
+    min-height: 100vh;
+    background: #0f2030;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── Status bar ── */
+  .statusbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px 4px;
+    background: #0a1825;
+    font-size: 12px;
+    color: #cdd6e0;
+    font-weight: 600;
+  }
+  .statusbar .icons { display: flex; gap: 5px; align-items: center; font-size: 11px; }
+  .battery {
+    border: 1.5px solid #cdd6e0; border-radius: 3px;
+    padding: 1px 4px; font-size: 10px; font-weight: 700;
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    background: #0a1825;
+    padding: 10px 16px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .back-btn {
+    color: #e8edf2;
+    font-size: 22px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .checkmate-title {
+    font-family: 'Cinzel', serif;
+    font-size: 26px;
+    font-weight: 900;
+    color: #ffffff;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-shadow: 0 0 20px rgba(255,220,60,0.3);
+    flex: 1;
+    text-align: center;
+    margin-right: 22px;
+  }
+
+  /* ── Move history bar ── */
+  .move-bar {
+    background: #1a3048;
+    margin: 0 10px;
+    border-radius: 10px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .move-item {
+    color: #8ba5be;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .move-item.num { color: #6a8aa5; }
+  .move-item.active {
+    background: #2d5a82;
+    color: #e0ecf8;
+    border-radius: 6px;
+    padding: 3px 8px;
+    border: 1.5px solid #4a7fa8;
+  }
+  .move-item.active .piece-icon { font-size: 13px; margin-right: 2px; }
+  .nav-btns {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .nav-btn {
+    background: none;
+    border: none;
+    color: #8ba5be;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+  }
+  .nav-btn.refresh {
+    background: #2d5a82;
+    border-radius: 50%;
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; color: #e0ecf8;
+  }
+
+  /* ── Opening label ── */
+  .opening {
+    padding: 8px 14px 6px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #7a9bb8;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .opening .book-icon { font-size: 15px; }
+
+  /* ── Computer player ── */
+  .player-top {
+    padding: 10px 14px 8px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+  }
+  .avatar-comp {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #4a9fd4, #1a5f8a);
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid #2d7ab0;
+    font-size: 24px;
+    box-shadow: 0 0 0 3px rgba(45,122,176,0.25);
+    flex-shrink: 0;
+  }
+  .player-info .name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ddeaf5;
+    letter-spacing: 0.2px;
+  }
+  .player-info .score {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+  }
+  .captured-icons { font-size: 13px; color: #7a9bb8; }
+  .advantage {
+    color: #e06060;
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  /* ── Chess board ── */
+  .board-wrap {
+    position: relative;
+    width: 100%;
+    flex: 1;
+  }
+  .board-labels-left {
+    position: absolute;
+    left: 4px;
+    top: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .board-labels-bottom {
+    position: absolute;
+    bottom: 4px;
+    left: 24px;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .rank-label, .file-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(150,180,210,0.7);
+    width: 16px;
+    text-align: center;
+    line-height: 1;
+  }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    width: calc(100% - 20px);
+    margin-left: 20px;
+    aspect-ratio: 1;
+  }
+  .sq {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(22px, 5.5vw, 34px);
+    line-height: 1;
+    position: relative;
+    cursor: pointer;
+    transition: filter 0.15s;
+  }
+  .sq.light  { background: #d8dfe8; }
+  .sq.dark   { background: #8fa8c0; }
+  .sq.hi-yellow.light { background: #d4c944; }
+  .sq.hi-yellow.dark  { background: #b8b030; }
+
+  .piece { user-select: none; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); }
+  .piece.white { color: #f5f5ef; -webkit-text-stroke: 1px #4a4a3a; }
+  .piece.black { color: #1a1a1a; -webkit-text-stroke: 0.5px #000; }
+
+  /* ── Bottom player bar ── */
+  .player-bottom {
+    background: #1a3048;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    border-top: 1px solid #254560;
+    margin-top: auto;
+  }
+  .avatar-user {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #4a7aad, #1a3d6a);
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid #2d5a8a;
+    font-size: 26px;
+    color: #8aaed4;
+    flex-shrink: 0;
+  }
+  .user-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .flag { font-size: 18px; }
+  .user-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ddeaf5;
+  }
+  .rating-badge {
+    font-size: 15px;
+    color: #8aaed4;
+    font-weight: 600;
+  }
+  .trophy { font-size: 16px; }
+  .undo-btn {
+    margin-left: auto;
+    background: #2a5070;
+    border: none;
+    border-radius: 14px;
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+    color: #8aaed4;
+    transition: background 0.15s;
+  }
+  .undo-btn:hover { background: #3a6a90; }
+
+  /* ── Checkmate flash overlay ── */
+  .cm-flash {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center,
+      rgba(220,70,70,0.08) 0%,
+      transparent 70%);
+    animation: cmPulse 2s ease-in-out infinite;
+    z-index: 10;
+  }
+  @keyframes cmPulse {
+    0%,100% { opacity: 0.4; }
+    50%      { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Status bar -->
+  <div class="statusbar">
+    <span>2:16 PM</span>
+    <div class="icons">
+      <span>0.00 K/S</span>
+      <span>📶</span>
+      <span>Vo 4G</span>
+      <span>Vo 4G</span>
+      <div class="battery">65</div>
+    </div>
+  </div>
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <span class="back-btn">←</span>
+    <div class="checkmate-title">Checkmate!</div>
+  </div>
+
+  <!-- Move history -->
+  <div class="move-bar">
+    <span class="move-item">3xb4+</span>
+    <span class="move-item num">4.</span>
+    <span class="move-item">♙c1–d2</span>
+    <span class="move-item active"><span class="piece-icon">♛</span>d8–h4+</span>
+    <div class="nav-btns">
+      <button class="nav-btn">‹</button>
+      <button class="nav-btn">›</button>
+      <button class="nav-btn refresh">↺</button>
+    </div>
+  </div>
+
+  <!-- Opening -->
+  <div class="opening">
+    <span class="book-icon">📖</span>
+    <span>Mieses Opening: Reversed Rat</span>
+  </div>
+
+  <!-- Computer player -->
+  <div class="player-top">
+    <div class="avatar-comp">🤖</div>
+    <div class="player-info">
+      <div class="name">Computer (2100)</div>
+      <div class="score">
+        <span class="captured-icons">♟♟</span>
+        <span class="advantage">+2</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Board -->
+  <div class="board-wrap">
+    <div class="cm-flash"></div>
+
+    <!-- Rank labels -->
+    <div class="board-labels-left">
+      <span class="rank-label">8</span>
+      <span class="rank-label">7</span>
+      <span class="rank-label">6</span>
+      <span class="rank-label">5</span>
+      <span class="rank-label">4</span>
+      <span class="rank-label">3</span>
+      <span class="rank-label">2</span>
+      <span class="rank-label">1</span>
+    </div>
+
+    <!-- File labels -->
+    <div class="board-labels-bottom">
+      <span class="file-label">a</span>
+      <span class="file-label">b</span>
+      <span class="file-label">c</span>
+      <span class="file-label">d</span>
+      <span class="file-label">e</span>
+      <span class="file-label">f</span>
+      <span class="file-label">g</span>
+      <span class="file-label">h</span>
+    </div>
+
+    <div class="board" id="board"></div>
+  </div>
+
+  <!-- Bottom player -->
+  <div class="player-bottom">
+    <div class="avatar-user">👤</div>
+    <div class="player-info">
+      <div class="user-name-row">
+        <span class="flag">🇰🇪</span>
+        <span class="user-name">6VICTOR7</span>
+        <span class="rating-badge">(715)</span>
+        <span class="trophy">🏅</span>
+      </div>
+    </div>
+    <button class="undo-btn">↩</button>
+  </div>
+
+</div>
+
+<script>
+// Board position – rank 8 at index 0, rank 1 at index 7
+// Each row: a–h
+// Pieces: uppercase = white, lowercase = black
+// K=king Q=queen R=rook B=bishop N=knight P=pawn
+const position = [
+  // rank 8
+  ['bR','bN','bB',null,'bK',null,'bN','bR'],
+  // rank 7
+  ['bP','bP','bP','bP',null,'bP','bP','bP'],
+  // rank 6
+  [null,null,null,null,null,null,null,null],
+  // rank 5
+  [null,null,null,null,null,null,null,null],
+  // rank 4
+  [null,'bN',null,null,'bP',null,null,'bQ'],
+  // rank 3
+  [null,null,null,'wP',null,null,null,null],
+  // rank 2
+  ['wP','wP',null,'wN','wP',null,null,'wP'],
+  // rank 1
+  ['wR','wN',null,'wQ','wK','wN',null,'wR'],
+];
+
+// Highlighted squares (rank, file) 0-indexed from top-left
+const highlighted = new Set(['0-3','4-7']); // d8 and h4
+
+const unicodePieces = {
+  wK:'♔', wQ:'♕', wR:'♖', wB:'♗', wN:'♘', wP:'♙',
+  bK:'♚', bQ:'♛', bR:'♜', bB:'♝', bN:'♞', bP:'♟',
+};
+
+const board = document.getElementById('board');
+
+for (let r = 0; r < 8; r++) {
+  for (let f = 0; f < 8; f++) {
+    const sq = document.createElement('div');
+    const isLight = (r + f) % 2 === 0;
+    const isHi   = highlighted.has(`${r}-${f}`);
+    sq.className = `sq ${isLight ? 'light' : 'dark'}${isHi ? ' hi-yellow' : ''}`;
+
+    const piece = position[r][f];
+    if (piece) {
+      const span = document.createElement('span');
+      const color = piece[0] === 'w' ? 'white' : 'black';
+      span.className = `piece ${color}`;
+      span.textContent = unicodePieces[piece];
+      sq.appendChild(span);
+    }
+    board.appendChild(sq);
+  }
+}
+</script>
+</body>
+</html>
