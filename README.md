@@ -1,4 +1,4 @@
-# CHECKMATE - Online Chess Game
+git add .# CHECKMATE - Online Chess Game
 
 A beautiful, fully-featured chess game with online multiplayer support!
 

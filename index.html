@@ -1658,7 +1658,16 @@
       border-bottom: 1px solid var(--border);
     }
     .game-main {
-      padding: 10px 5px;
+      flex: 1;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .game-right {
+      width: 100%;
+      padding: 10px;
+      flex: 0 0 auto;
     }
   }
 </style>
@@ -1710,11 +1719,6 @@
       <div class="nav-knight">♞</div> CHECKMATE
     </div>
     <div class="nav-spacer"></div>
-    <button class="nav-btn active">🌐 Online</button>
-    <button class="nav-btn" onclick="cancelMatchmaking();showPage('play-computer')">🤖 Computer</button>
-    <button class="nav-btn" onclick="cancelMatchmaking();showPage('play-friends')">👥 Friends</button>
-    <button class="nav-btn" onclick="cancelMatchmaking();showPage('puzzles')">🧩 Puzzles</button>
-    <button class="nav-btn" onclick="cancelMatchmaking();showPage('settings')">⚙️</button>
   </nav>
 
   <!-- SCREEN 1: Find a game -->
@@ -1828,11 +1832,6 @@
       <div class="nav-knight">♞</div> CHECKMATE
     </div>
     <div class="nav-spacer"></div>
-    <button class="nav-btn" onclick="showPage('play-online')">🌐 Online</button>
-    <button class="nav-btn active">🤖 Computer</button>
-    <button class="nav-btn" onclick="showPage('play-friends')">👥 Friends</button>
-    <button class="nav-btn" onclick="showPage('puzzles')">🧩 Puzzles</button>
-    <button class="nav-btn" onclick="showPage('settings')">⚙️</button>
   </nav>
   <div id="comp-setup-screen" class="comp-setup">
     <div class="comp-card">
@@ -1925,11 +1924,6 @@
       <div class="nav-knight">♞</div> CHECKMATE
     </div>
     <div class="nav-spacer"></div>
-    <button class="nav-btn" onclick="cancelFriendGame();showPage('play-online')">🌐 Online</button>
-    <button class="nav-btn" onclick="cancelFriendGame();showPage('play-computer')">🤖 Computer</button>
-    <button class="nav-btn active">👥 Friends</button>
-    <button class="nav-btn" onclick="cancelFriendGame();showPage('puzzles')">🧩 Puzzles</button>
-    <button class="nav-btn" onclick="cancelFriendGame();showPage('settings')">⚙️</button>
   </nav>
 
   <!-- Search + results panel + right area -->
@@ -2037,11 +2031,6 @@
       <div class="nav-knight">♞</div> CHECKMATE
     </div>
     <div class="nav-spacer"></div>
-    <button class="nav-btn" onclick="showPage('play-online')">🌐 Online</button>
-    <button class="nav-btn" onclick="showPage('play-computer')">🤖 Computer</button>
-    <button class="nav-btn" onclick="showPage('play-friends')">👥 Friends</button>
-    <button class="nav-btn active">🧩 Puzzles</button>
-    <button class="nav-btn" onclick="showPage('settings')">⚙️</button>
   </nav>
   
   <!-- Puzzle selection grid -->
@@ -2105,12 +2094,6 @@
       <div class="nav-knight">♞</div> CHECKMATE
     </div>
     <div class="nav-spacer"></div>
-    <button class="nav-btn" onclick="showPage('play-online')">🌐 Online</button>
-    <button class="nav-btn" onclick="showPage('play-computer')">🤖 Computer</button>
-    <button class="nav-btn" onclick="showPage('play-friends')">👥 Friends</button>
-    <button class="nav-btn" onclick="showPage('puzzles')">🧩 Puzzles</button>
-    <button class="nav-btn active">⚡ Offline</button>
-    <button class="nav-btn" onclick="showPage('settings')">⚙️</button>
   </nav>
   <div class="game-layout">
     <div class="game-sidebar">
