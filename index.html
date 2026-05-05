@@ -1686,25 +1686,193 @@
       width: 100%;
       justify-content: center;
     }
+    .inner-page {
+      background: var(--bg);
+    }
+
+    .navbar {
+      height: 56px;
+      padding: 0 16px;
+      background: var(--bg);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      box-shadow: inset 0 -1px 0 rgba(255,255,255,0.03);
+      justify-content: center;
+    }
+
+    .nav-brand {
+      width: 100%;
+      justify-content: center;
+      gap: 8px;
+      font-size: 18px;
+    }
+
+    .nav-knight {
+      width: 34px;
+      height: 34px;
+      font-size: 17px;
+      background: radial-gradient(circle, #00bcd4, #01879c);
+    }
+
+    .nav-btn {
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+
+    .matchmaking-card, .comp-card, .challenge-pending-card,
+    .settings-card, .player-card, .status-card,
+    .move-list-container, .chat-container, .search-header,
+    .puzzles-header {
+      background: var(--bg2);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.18);
+    }
+
     .matchmaking-card, .comp-card, .challenge-pending-card {
       width: 95%;
-      padding: 30px 20px;
+      padding: 26px 18px;
     }
+
+    .game-layout {
+      flex-direction: column;
+      padding: 16px 0;
+      gap: 14px;
+    }
+
+    .game-sidebar, .game-main, .game-right,
+    .puzzle-sidebar, .puzzle-main, .friends-search-panel,
+    .search-results {
+      width: 100%;
+    }
+
+    .game-sidebar, .game-right, .puzzle-sidebar, .puzzle-main {
+      padding: 0;
+      border: none;
+      background: transparent;
+    }
+
+    .player-card {
+      padding: 14px;
+      gap: 12px;
+    }
+
+    .player-avatar {
+      width: 48px;
+      height: 48px;
+    }
+
+    .player-name {
+      font-size: 15px;
+    }
+
+    .player-rating {
+      font-size: 12px;
+    }
+
+    .clock {
+      background: var(--bg3);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 10px 12px;
+    }
+
+    .board-wrapper {
+      width: 100%;
+      padding: 0 10px;
+    }
+
+    .board-container {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chess-board {
+      width: min(100%, 340px);
+      aspect-ratio: 1 / 1;
+      grid-template-columns: repeat(8, minmax(0,1fr));
+      grid-template-rows: repeat(8, minmax(0,1fr));
+      border-radius: 18px;
+    }
+
+    .sq {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .sq .piece {
+      font-size: clamp(24px, 5vw, 34px);
+    }
+
+    .chat-container {
+      padding: 12px;
+      gap: 10px;
+    }
+
+    .chat-messages {
+      min-height: 160px;
+      background: var(--bg3);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 12px;
+    }
+
+    .chat-input-wrap {
+      gap: 10px;
+    }
+
+    .chat-input-wrap input {
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: var(--bg3);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text);
+    }
+
+    .chat-input-wrap button {
+      border-radius: 14px;
+      padding: 10px 14px;
+    }
+
+    .settings-body {
+      padding: 16px;
+    }
+
     .settings-grid {
       grid-template-columns: 1fr;
+      gap: 16px;
     }
-    .settings-body {
-      padding: 15px;
+
+    .settings-card {
+      padding: 18px;
     }
-    .friends-page-body {
-      flex-direction: column;
+
+    .puzzles-body {
+      padding: 16px;
     }
+
+    .puzzles-header {
+      padding: 18px;
+      gap: 12px;
+    }
+
+    .puzzle-grid {
+      gap: 12px;
+    }
+
+    .puzzle-card {
+      border-radius: 18px;
+      padding: 16px;
+    }
+
     .friends-search-panel {
       width: 100%;
-      height: 300px;
+      height: auto;
       border-right: none;
       border-bottom: 1px solid var(--border);
     }
+
     .game-main {
       flex: 1;
       padding: 0;
@@ -1712,6 +1880,7 @@
       align-items: center;
       justify-content: center;
     }
+
     .game-right {
       width: 100%;
       padding: 10px;

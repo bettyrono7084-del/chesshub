@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Chess Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:          #1a2b3c;
+      --bg-mid:      #1f3448;
+      --bg-panel:    #243d52;
+      --accent:      #00bcd4;
+      --accent-dim:  #0097a7;
+      --text:        #e8f4f8;
+      --text-muted:  #7a9aae;
+      --board-light: #f0d9b5;
+      --board-dark:  #b58863;
+      --hl:          rgba(244,228,0,0.65);
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      height: 100dvh;
+      max-width: 430px;
+      margin: 0 auto;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      flex-shrink: 0;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      padding: 0 14px;
+      position: relative;
+    }
+    .header .back {
+      position: absolute; left: 14px;
+      font-size: 22px; cursor: pointer; color: var(--text);
+      background: none; border: none;
+    }
+    .header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 2.5px;
+      color: var(--text);
+    }
+    .header .sig {
+      position: absolute; right: 14px;
+      display: flex; align-items: flex-end; gap: 2px;
+    }
+    .sig-bar {
+      width: 4px; background: var(--accent);
+      border-radius: 1px;
+    }
+
+    /* ── MOVE BAR ── */
+    .move-bar {
+      flex-shrink: 0;
+      height: 44px;
+      background: var(--bg-panel);
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 5px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(0,0,0,0.2);
+    }
+    .chip {
+      background: rgba(255,255,255,0.08);
+      border-radius: 6px;
+      padding: 4px 9px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    .chip.active {
+      background: var(--accent);
+      color: #fff;
+    }
+    .move-num { font-size: 12.5px; color: var(--text-muted); font-weight: 600; }
+    .move-bar .sp { flex: 1; }
+    .nav {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.09);
+      border: none; color: var(--text);
+      font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .nav:active { background: rgba(255,255,255,0.2); }
+
+    /* ── OPENING BAR ── */
+    .opening-bar {
+      flex-shrink: 0;
+      height: 38px;
+      background: var(--bg-mid);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 8px;
+      border-bottom: 1px solid rgba(0,0,0,0.2);
+    }
+    .opening-icon { font-size: 15px; }
+    .opening-name { font-size: 13px; color: var(--text-muted); flex: 1; }
+    .act-btns { display: flex; gap: 9px; }
+    .act-btn {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: none;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: transform .15s;
+    }
+    .act-btn:active { transform: scale(0.9); }
+    .act-btn svg { display: block; }
+
+    /* ── PLAYER BAR ── */
+    .player-bar {
+      flex-shrink: 0;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 10px;
+      background: var(--bg);
+    }
+    .avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 2px solid rgba(255,255,255,0.12);
+      background: var(--bg-panel);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .pinfo { flex: 1; min-width: 0; }
+    .pname {
+      font-size: 14.5px; font-weight: 700;
+      color: var(--text);
+      display: flex; align-items: center; gap: 5px;
+      white-space: nowrap; overflow: hidden;
+    }
+    .pname .elo { font-weight: 400; color: var(--text-muted); font-size: 13.5px; }
+    .clock {
+      background: var(--bg-panel);
+      border-radius: 8px;
+      padding: 7px 11px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex; align-items: center; gap: 6px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+
+    /* ── BOARD ── */
+    .board-container {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+    }
+    .board-wrap {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+    }
+    .board {
+      width: 100%; height: 100%;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+    }
+    .cell {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .cell.light { background: var(--board-light); }
+    .cell.dark  { background: var(--board-dark); }
+    .cell.hl    { background: var(--hl) !important; }
+    .cell:active { filter: brightness(1.15); }
+
+    .piece {
+      font-size: clamp(16px, 4.2vw, 36px);
+      line-height: 1;
+      user-select: none;
+      position: relative;
+      z-index: 2;
+    }
+    .piece.w {
+      color: #fff;
+      filter: drop-shadow(0 0 1px #333) drop-shadow(0 1px 3px rgba(0,0,0,0.55));
+    }
+    .piece.b {
+      color: #1c1c1c;
+      filter: drop-shadow(0 1px 1px rgba(255,255,255,0.25));
+    }
+
+    .lbl-rank {
+      position: absolute; top: 2px; left: 3px;
+      font-size: 9px; font-weight: 700; line-height: 1;
+      pointer-events: none;
+    }
+    .lbl-file {
+      position: absolute; bottom: 1px; right: 3px;
+      font-size: 9px; font-weight: 700; line-height: 1;
+      pointer-events: none;
+    }
+    .cell.light .lbl-rank, .cell.light .lbl-file { color: var(--board-dark); opacity: .8; }
+    .cell.dark  .lbl-rank, .cell.dark  .lbl-file  { color: var(--board-light); opacity: .8; }
+
+    /* ── CHAT BAR ── */
+    .chat-bar {
+      flex-shrink: 0;
+      height: 52px;
+      background: var(--bg-panel);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .chat-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 3px 14px rgba(0,188,212,0.4);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .chat-btn:active { transform: scale(0.91); box-shadow: none; }
+    .chat-btn svg { width: 19px; height: 19px; fill: #fff; }
+
+    /* Chat Modal */
+    .chat-modal {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: flex; align-items: flex-end;
+      z-index: 100;
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s;
+    }
+    .chat-modal.open { opacity: 1; pointer-events: all; }
+    .chat-box {
+      width: 100%; max-width: 430px; margin: 0 auto;
+      background: var(--bg-panel);
+      border-radius: 18px 18px 0 0;
+      padding: 16px;
+      transform: translateY(100%);
+      transition: transform .28s cubic-bezier(.4,0,.2,1);
+    }
+    .chat-modal.open .chat-box { transform: translateY(0); }
+    .chat-header { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+    .chat-msgs { height: 140px; overflow-y: auto; display: flex; flex-direction: column; gap: 7px; }
+    .msg { font-size: 13px; padding: 7px 11px; border-radius: 12px; max-width: 80%; }
+    .msg.them { background: var(--bg-mid); color: var(--text); align-self: flex-start; }
+    .msg.me   { background: var(--accent-dim); color: #fff; align-self: flex-end; }
+    .chat-input-row { display: flex; gap: 8px; margin-top: 12px; }
+    .chat-input {
+      flex: 1; background: var(--bg-mid); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px; padding: 9px 14px; color: var(--text); font-size: 13.5px;
+      font-family: 'DM Sans', sans-serif; outline: none;
+    }
+    .chat-send {
+      width: 38px; height: 38px; border-radius: 50%; background: var(--accent);
+      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .chat-send svg { width: 16px; height: 16px; fill: #fff; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <button class="back">←</button>
+    <h1>Checkmate!</h1>
+    <div class="sig">
+      <div class="sig-bar" style="height:6px"></div>
+      <div class="sig-bar" style="height:9px"></div>
+      <div class="sig-bar" style="height:13px"></div>
+      <div class="sig-bar" style="height:17px"></div>
+    </div>
+  </div>
+
+  <!-- MOVE BAR -->
+  <div class="move-bar">
+    <div class="chip">-d6</div>
+    <span class="move-num">3.</span>
+    <div class="chip">a2-a4</div>
+    <div class="chip active">c7-c6</div>
+    <div class="sp"></div>
+    <button class="nav">‹</button>
+    <button class="nav">›</button>
+    <!-- Piece icons -->
+    <button class="nav" style="width:34px; background:var(--accent)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--text)"><path d="M19 22H5v-2h14v2zM12 3a5 5 0 015 5c0 2.38-1.19 4.47-3 5.74V16H10v-2.26C8.19 12.47 7 10.38 7 8a5 5 0 015-5z"/></svg>
+    </button>
+    <button class="nav" style="width:34px; background:var(--bg-panel)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--accent)"><path d="M6 2v6l2 2-2 2v6l6-4 6 4v-6l-2-2 2-2V2l-6 4-6-4z"/></svg>
+    </button>
+  </div>
+
+  <!-- OPENING BAR -->
+  <div class="opening-bar">
+    <span class="opening-icon">📖</span>
+    <span class="opening-name">Mieses Opening</span>
+    <div class="act-btns">
+      <!-- Offer Draw -->
+      <button class="act-btn" title="Offer Draw">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="3" width="18" height="18" rx="2" stroke="#4fc3f7" stroke-width="2"/>
+          <path d="M3 12h18M12 3v18" stroke="#4fc3f7" stroke-width="2"/>
+        </svg>
+      </button>
+      <!-- Resign -->
+      <button class="act-btn" title="Resign">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M4 4h12l-3 5 3 5H4V4z" fill="#ef5350"/>
+          <line x1="4" y1="4" x2="4" y2="20" stroke="#ef5350" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- OPPONENT -->
+  <div class="player-bar">
+    <div class="avatar">
+      <svg viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">
+        <rect width="42" height="42" fill="#1565c0"/>
+        <circle cx="21" cy="16" r="7" fill="#90caf9"/>
+        <path d="M7 38c0-7.7 6.3-14 14-14s14 6.3 14 14" fill="#90caf9"/>
+        <!-- Indian flag hint -->
+        <text x="30" y="12" font-size="10">🇮🇳</text>
+      </svg>
+    </div>
+    <div class="pinfo">
+      <div class="pname">
+        <span>🇮🇳</span>
+        pastesanket
+        <span class="elo">(776)</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#4fc3f7" style="flex-shrink:0"><path d="M12 2L2 7v8c0 5 4.5 9.5 10 10 5.5-.5 10-5 10-10V7L12 2z"/></svg>
+      </div>
+    </div>
+    <div class="clock">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <circle cx="12" cy="13" r="9"/>
+        <path d="M12 4V2M9 2h6M12 7v6l3 3"/>
+      </svg>
+      <span id="clock-opp">09:40</span>
+    </div>
+  </div>
+
+  <!-- CHESS BOARD -->
+  <div class="board-container">
+    <div class="board-wrap">
+      <div class="board" id="board"></div>
+    </div>
+  </div>
+
+  <!-- ME -->
+  <div class="player-bar">
+    <div class="avatar">
+      <svg viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">
+        <rect width="42" height="42" fill="#00acc1"/>
+        <circle cx="21" cy="16" r="7" fill="#b2ebf2"/>
+        <path d="M7 38c0-7.7 6.3-14 14-14s14 6.3 14 14" fill="#b2ebf2"/>
+      </svg>
+    </div>
+    <div class="pinfo">
+      <div class="pname">
+        <span>🇰🇪</span>
+        6VICTOR7
+        <span class="elo">(715)</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#4fc3f7" style="flex-shrink:0"><path d="M12 2L2 7v8c0 5 4.5 9.5 10 10 5.5-.5 10-5 10-10V7L12 2z"/></svg>
+      </div>
+    </div>
+    <div class="clock">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <circle cx="12" cy="13" r="9"/>
+        <path d="M12 4V2M9 2h6M12 7v6l3 3"/>
+      </svg>
+      <span id="clock-me">09:38</span>
+    </div>
+  </div>
+
+  <!-- CHAT BAR -->
+  <div class="chat-bar">
+    <button class="chat-btn" id="chatOpen">
+      <svg viewBox="0 0 24 24"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- CHAT MODAL -->
+<div class="chat-modal" id="chatModal">
+  <div class="chat-box">
+    <div class="chat-header">💬 Game Chat</div>
+    <div class="chat-msgs" id="chatMsgs">
+      <div class="msg them">Good luck! 👋</div>
+      <div class="msg me">gl hf!</div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chatInput" placeholder="Type a message…" />
+      <button class="chat-send" id="chatSend">
+        <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Board position ─────────────────────────────────────── */
+// Rows: rank 8 (idx 0) → rank 1 (idx 7)
+// Cols: file a (idx 0) → file h (idx 7)
+// [unicode, 'w'|'b'] or null
+
+const B = 'b', W = 'w';
+const pos = [
+  // rank 8
+  [['♜',B],['♞',B],['♝',B],null,    ['♚',B],null,    ['♞',B],['♜',B]],
+  // rank 7
+  [['♟',B],['♟',B],null,   null,    null,   ['♟',B],['♟',B],['♟',B]],
+  // rank 6
+  [null,   null,   ['♟',B],['♛',B], null,   null,   null,   null],
+  // rank 5
+  [null,   null,   null,   ['♟',B], null,   null,   null,   null],
+  // rank 4
+  [['♙',W],null,  null,   null,    null,   null,   null,   ['♙',W]],
+  // rank 3
+  [null,   null,  ['♙',W],null,    null,   null,   null,   null],
+  // rank 2
+  [null,   ['♙',W],['♙',W],null,  ['♙',W],['♙',W],null,  ['♙',W]],
+  // rank 1
+  [['♖',W],['♘',W],['♗',W],['♕',W],['♔',W],['♗',W],['♘',W],['♖',W]],
+];
+
+// Highlighted: c7→c6  (from: row1,col2  to: row2,col2)
+const hlSet = new Set(['1-2','2-2']);
+
+const files = ['a','b','c','d','e','f','g','h'];
+const ranks = ['8','7','6','5','4','3','2','1'];
+const boardEl = document.getElementById('board');
+
+for (let r = 0; r < 8; r++) {
+  for (let c = 0; c < 8; c++) {
+    const cell = document.createElement('div');
+    const isLight = (r + c) % 2 === 0;
+    cell.className = 'cell ' + (isLight ? 'light' : 'dark');
+    if (hlSet.has(`${r}-${c}`)) cell.classList.add('hl');
+
+    if (c === 0) {
+      const rl = document.createElement('span');
+      rl.className = 'lbl-rank'; rl.textContent = ranks[r];
+      cell.appendChild(rl);
+    }
+    if (r === 7) {
+      const fl = document.createElement('span');
+      fl.className = 'lbl-file'; fl.textContent = files[c];
+      cell.appendChild(fl);
+    }
+
+    const p = pos[r][c];
+    if (p) {
+      const sp = document.createElement('span');
+      sp.className = 'piece ' + p[1];
+      sp.textContent = p[0];
+      cell.appendChild(sp);
+    }
+
+    boardEl.appendChild(cell);
+  }
+}
+
+/* ── Clock (my timer counts down) ───────────────────────── */
+let myS = 9 * 60 + 38;
+const clockMe = document.getElementById('clock-me');
+const timer = setInterval(() => {
+  if (myS <= 0) { clearInterval(timer); return; }
+  myS--;
+  const m = String(Math.floor(myS / 60)).padStart(2,'0');
+  const s = String(myS % 60).padStart(2,'0');
+  clockMe.textContent = `${m}:${s}`;
+}, 1000);
+
+/* ── Chat modal ─────────────────────────────────────────── */
+const modal    = document.getElementById('chatModal');
+const chatOpen = document.getElementById('chatOpen');
+const chatInput= document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+const chatMsgs = document.getElementById('chatMsgs');
+
+chatOpen.addEventListener('click', () => modal.classList.toggle('open'));
+modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+
+function sendMsg() {
+  const txt = chatInput.value.trim();
+  if (!txt) return;
+  const div = document.createElement('div');
+  div.className = 'msg me';
+  div.textContent = txt;
+  chatMsgs.appendChild(div);
+  chatMsgs.scrollTop = chatMsgs.scrollHeight;
+  chatInput.value = '';
+}
+chatSend.addEventListener('click', sendMsg);
+chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMsg(); });
+
+/* ── Piece selection highlight ──────────────────────────── */
+let selected = null;
+boardEl.addEventListener('click', e => {
+  const cell = e.target.closest('.cell');
+  if (!cell) return;
+  if (selected) selected.style.outline = '';
+  if (selected === cell) { selected = null; return; }
+  selected = cell;
+  cell.style.outline = '3px solid rgba(0,188,212,0.85)';
+  cell.style.outlineOffset = '-2px';
+});
+</script>
+</body>
+</html>
