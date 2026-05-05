@@ -305,6 +305,7 @@ class GameState {
     this.enPassant = null;
     this.gameOver = false;
     this.pendingPromotion = null;
+    this.currentMoveIndex = 0; // Index for move history navigation
   }
 }
 
@@ -620,7 +621,7 @@ function makeMove(g, from, to, promotion = 'Q') {
     } else {
       g.pendingPromotion = { g, to, color, moveStr };
       activeGame = g;
-      showPromotionModal(color);
+      showPromotionModal(color, from, to, isCapture); // Pass more context for promotion
       g.selected = null;
       g.legalMoves = [];
       g.lastMove = { from, to };
@@ -630,12 +631,25 @@ function makeMove(g, from, to, promotion = 'Q') {
     }
   }
 
+  // --- After all board state updates, store snapshot and flip turn ---
   g.lastMove = { from, to };
-  g.moveHistory.push({ from, to, piece, captured });
   g.moveStrings.push(moveStr);
+  g.turn = g.turn === 'w' ? 'b' : 'w'; // Flip turn for the *next* player
+
+  // Store a snapshot of the game state *after* this move has been applied
+  // and *after* the turn has been flipped for the next player.
+  const stateSnapshot = {
+    board: g.board.map(r => [...r]), // Deep copy
+    turn: g.turn, // The turn of the player *about to move*
+    lastMove: { ...g.lastMove },
+    captured: { w: [...g.captured.w], b: [...g.captured.b] },
+    castlingRights: { ...g.castlingRights },
+    enPassant: g.enPassant ? [...g.enPassant] : null,
+  };
+  g.moveHistory.push(stateSnapshot); // Use moveHistory to store snapshots
   g.selected = null;
   g.legalMoves = [];
-  g.turn = g.turn === 'w' ? 'b' : 'w';
+  g.currentMoveIndex = g.moveHistory.length; // Point to the end of history
 
   updateMoveList(g);
   updateStatus(g);
@@ -646,7 +660,7 @@ function makeMove(g, from, to, promotion = 'Q') {
     socket.emit('make-move', {
       roomId: g.roomId,
       move: moveStr,
-      boardState: g.board,
+      boardState: g.board, // Send current board state
       moveHistory: g.moveHistory,
       enPassant: g.enPassant,
       castlingRights: g.castlingRights,
@@ -673,7 +687,7 @@ function makeMove(g, from, to, promotion = 'Q') {
   }
 }
 
-function showPromotionModal(color) {
+function showPromotionModal(color, from, to, isCapture) {
   const map = { w: ['♕','♖','♗','♘'], b: ['♛','♜','♝','♞'] };
   const pieces = map[color];
   document.getElementById('promo-Q').textContent = pieces[0];
@@ -689,10 +703,24 @@ function promotePawn(type) {
   if (!p) return;
   const g = p.g;
   g.board[p.to[0]][p.to[1]] = p.color + type;
-  g.pendingPromotion = null;
   const fullMoveStr = p.moveStr + '=' + type;
-  // Note: moveHistory and moveStrings are updated inside makeMove or handled here if promotion is manual
+  
+  // Update game state after promotion
+  g.lastMove = { from: p.from, to: p.to }; // Use from/to from pendingPromotion
   g.moveStrings.push(fullMoveStr);
+  // g.turn was already flipped in makeMove before returning for promotion
+
+  // Store a snapshot of the game state *after* promotion and turn flip
+  const stateSnapshot = {
+    board: g.board.map(r => [...r]),
+    turn: g.turn,
+    lastMove: { ...g.lastMove },
+    captured: { w: [...g.captured.w], b: [...g.captured.b] },
+    castlingRights: { ...g.castlingRights },
+    enPassant: g.enPassant ? [...g.enPassant] : null,
+  };
+  g.moveHistory.push(stateSnapshot); // Use moveHistory to store snapshots
+  g.currentMoveIndex = g.moveHistory.length; // Point to the end of history
   updateMoveList(g);
   updateStatus(g);
   renderBoard(g);
@@ -939,22 +967,44 @@ function updateMoveList(g) {
   const el = document.getElementById(g.id + '-moves');
   if (!el) return;
   el.innerHTML = '';
+  // Iterate through moveStrings to display moves
   for (let i = 0; i < g.moveStrings.length; i += 2) {
     const row = document.createElement('div');
     row.className = 'move-row';
     const num = document.createElement('span');
     num.className = 'move-num';
     num.textContent = (i/2 + 1) + '.';
-    const w = document.createElement('span');
+    const w = document.createElement('span'); // White's move
     w.className = 'move-cell';
-    w.textContent = g.moveStrings[i] || '';
-    const b = document.createElement('span');
+    w.textContent = g.moveStrings[i];
+    if (g.currentMoveIndex === i + 1) w.classList.add('current'); // Highlight white's move
+    const b = document.createElement('span'); // Black's move
     b.className = 'move-cell';
-    b.textContent = g.moveStrings[i+1] || '';
+    b.textContent = g.moveStrings[i+1] || ''; // Black's move might not exist yet
+    if (g.currentMoveIndex === i + 2) b.classList.add('current'); // Highlight black's move
     row.appendChild(num); row.appendChild(w); row.appendChild(b);
     el.appendChild(row);
   }
-  el.scrollTop = el.scrollHeight;
+  // Auto-scroll logic for mobile (horizontal) and desktop (vertical)
+  const container = el.parentElement;
+  if (container) {
+    if (window.innerWidth <= 850) {
+      const currentMoveEl = el.querySelector('.move-cell.current');
+      if (currentMoveEl) {
+        currentMoveEl.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+      } else {
+        // If no specific move is highlighted (e.g., at index 0), scroll to the beginning
+        // or if at the very end, scroll to the end.
+        if (g.currentMoveIndex === 0) {
+          container.scrollLeft = 0;
+        } else {
+          container.scrollLeft = container.scrollWidth;
+        }
+      }
+    } else {
+      container.scrollTop = container.scrollHeight;
+    }
+  }
 }
 
 function updateStatus(g) {
@@ -1017,7 +1067,102 @@ function newGame(id) {
   createGame(id);
 }
 
-function navigateMoves(dir, id) {}
+function navigateMoves(dir, id) {
+  const g = games[id];
+  if (!g) return;
+
+  const totalSnapshots = g.moveHistory.length;
+
+  if (g.currentMoveIndex === undefined) {
+    g.currentMoveIndex = totalSnapshots; // Default to current state
+  }
+
+  let newIndex = g.currentMoveIndex;
+
+  if (dir === 'first') {
+    newIndex = 0;
+  } else if (dir === 'prev') {
+    newIndex = Math.max(0, g.currentMoveIndex - 1);
+  } else if (dir === 'next') {
+    newIndex = Math.min(totalSnapshots, g.currentMoveIndex + 1);
+  } else if (dir === 'last') {
+    newIndex = totalSnapshots;
+  }
+
+  if (newIndex === g.currentMoveIndex) {
+    return; // No change
+  }
+
+  g.currentMoveIndex = newIndex;
+
+  // Create a temporary game state for rendering the historical board
+  const tempGameForRender = new GameState(g.id, g.vsComputer, g.playerColor, g.difficulty);
+  tempGameForRender.moveStrings = g.moveStrings; // Keep original move strings for list display
+
+  if (newIndex === 0) {
+    // If navigating to the very beginning, show initial board (GameState constructor default)
+    // No need to explicitly set, as new GameState already has initial board.
+  } else {
+    const snapshot = g.moveHistory[newIndex - 1]; // -1 because index 0 means before first move, index 1 means after first move
+    tempGameForRender.board = snapshot.board;
+    tempGameForRender.turn = snapshot.turn;
+    tempGameForRender.lastMove = snapshot.lastMove;
+    tempGameForRender.captured = snapshot.captured;
+    tempGameForRender.castlingRights = snapshot.castlingRights;
+    tempGameForRender.enPassant = snapshot.enPassant;
+  }
+
+  renderBoard(tempGameForRender);
+  updateStatus(tempGameForRender);
+  updateMoveList(g); // Update move list with highlighting
+}
+
+function undoMove(id) {
+  const g = (id === 'puzzle') ? currentPuzzleGame : games[id];
+  if (!g || g.gameOver || g.pendingPromotion) return;
+  if (id === 'online' || id === 'friends') return;
+
+  let popCount = 1;
+  if (g.vsComputer && g.turn === g.playerColor) {
+    popCount = 2;
+  }
+
+  if (g.moveHistory.length < popCount) return;
+
+  for (let i = 0; i < popCount; i++) {
+    g.moveHistory.pop();
+    g.moveStrings.pop();
+  }
+
+  const newHistoryLen = g.moveHistory.length;
+  if (newHistoryLen === 0) {
+    if (id === 'puzzle') resetCurrentPuzzle();
+    else newGame(id);
+    return;
+  }
+
+  const snapshot = g.moveHistory[newHistoryLen - 1];
+  g.board = snapshot.board.map(r => [...r]);
+  g.turn = snapshot.turn;
+  g.lastMove = snapshot.lastMove ? { ...snapshot.lastMove } : null;
+  g.captured = { w: [...snapshot.captured.w], b: [...snapshot.captured.b] };
+  g.castlingRights = { ...snapshot.castlingRights };
+  g.enPassant = snapshot.enPassant ? [...snapshot.enPassant] : null;
+  g.currentMoveIndex = newHistoryLen;
+  g.selected = null;
+  g.legalMoves = [];
+
+  if (id === 'puzzle') {
+    renderPuzzleBoard(g);
+    updatePuzzleStatus();
+    if (document.getElementById('puzzle-moves-count'))
+      document.getElementById('puzzle-moves-count').innerText = newHistoryLen;
+  } else {
+    renderBoard(g);
+    updateStatus(g);
+    updateMoveList(g);
+  }
+}
 
 function resignGame() {
   if (activeGame) {
@@ -1154,6 +1299,7 @@ function showPromotionModal(){ document.getElementById('promotion-modal').classL
 function completePromotion(pieceType){ const modal=document.getElementById('promotion-modal'); if(!currentPuzzleGame || !currentPuzzleGame.pendingPromotion) { modal.classList.remove('open'); return; } const {to,color}=currentPuzzleGame.pendingPromotion; currentPuzzleGame.board[to[0]][to[1]]=color+pieceType; currentPuzzleGame.pendingPromotion=null; currentPuzzleGame.turn=(currentPuzzleGame.turn=='w'?'b':'w'); currentPuzzleGame.selected=null; renderPuzzleBoard(currentPuzzleGame); modal.classList.remove('open'); afterPuzzleMove(); }
 function afterPuzzleMove(){ if(!currentPuzzleGame) return; const isMate = (getAllMoves(currentPuzzleGame, currentPuzzleGame.turn).length===0 && isInCheck(currentPuzzleGame.board, currentPuzzleGame.turn)); const movesUsed = currentPuzzleGame.moveHistory.length; document.getElementById('puzzle-moves-count').innerText = movesUsed;
   if(isMate){ if(movesUsed === puzzleExpectedMoves){ puzzleSuccess(true); } else { puzzleSuccess(false, `Correct checkmate but you used ${movesUsed} moves (need ${puzzleExpectedMoves}). Try again.`); resetCurrentPuzzle(); } } else if(movesUsed >= puzzleExpectedMoves && !isMate){ puzzleSuccess(false, `Failed: ${puzzleExpectedMoves} move(s) required but no checkmate. Reset.`); resetCurrentPuzzle(); } else { updatePuzzleStatus(); } }
+    currentPuzzleGame.currentMoveIndex = currentPuzzleGame.moveHistory.length; // Point to the end of history
 function puzzleSuccess(win, msg){ if(win){ completedPuzzles.add(activePuzzleId); localStorage.setItem('puzzle_completed', JSON.stringify([...completedPuzzles])); document.getElementById('puzzle-result-msg').innerHTML = '✅ SUCCESS! Puzzle completed.'; document.getElementById('puzzle-status-label').innerHTML = '✨ Victory!'; setTimeout(()=>{ nextPuzzle(); }, 1200); } else { document.getElementById('puzzle-result-msg').innerHTML = msg || 'Wrong move. Reset puzzle.'; } }
 function updatePuzzleStatus(){ document.getElementById('puzzle-status-label').innerHTML = currentPuzzleGame.turn=='w'?"White to move":"Black to move"; renderPuzzleBoard(currentPuzzleGame); }
 
@@ -1191,6 +1337,7 @@ function fenToBoard(fen){ const rows=fen.split(' ')[0].split('/'); const board=A
 function loadPuzzleById(id){ activePuzzleId=id; const p=puzzlesDB[id]; if(!p) return; const board=fenToBoard(p.fen); currentPuzzleGame = new PuzzleGameState(board, p.turn, 0); currentPuzzleGame.moveHistory=[]; currentPuzzleGame.moveStrings=[]; currentPuzzleGame.gameOver=false; puzzleExpectedMoves=p.expectedMoves; puzzleSolutions[id]=p.solutionHint||[]; document.getElementById('puzzle-current-id').innerText=id; document.getElementById('puzzle-objective').innerText=`Mate in ${p.expectedMoves}`; document.getElementById('puzzle-instruction').innerText=p.instruction; document.getElementById('puzzle-max-moves').innerText=p.expectedMoves; document.getElementById('puzzle-moves-count').innerText=0; document.getElementById('puzzle-result-msg').innerHTML=''; document.getElementById('puzzle-status-label').innerHTML=`${p.turn=='w'?'White':'Black'} to move`; renderPuzzleBoard(currentPuzzleGame); document.getElementById('puzzle-select-screen').style.display='none'; document.getElementById('puzzle-game-screen').style.display='flex'; }
 
 // Populate 100 puzzles (Mate in 1 & 2 increasing difficulty)
+  currentPuzzleGame.currentMoveIndex = 0; // Reset currentMoveIndex for new puzzle
 function initPuzzles(){ const mate1Fens=[["r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 0 1",'w',1,"Qxf7#","Queen delivers mate on f7"], ["r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 5",'w',1,"Bxf7#","Bishop sacrifice mate"], ["5rk1/5ppp/8/8/8/8/5PPP/5RK1 w - - 0 1",'w',1,"Rxf8#","Rook captures the king"], ["r1bqkbnr/pppp1Qpp/2n5/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 1",'b',1,"... exf4?? no, actual ...","Black mates: Qxf2#"], 
   ["rnb1kb1r/ppp1pppp/5n2/3q4/2B1P3/2N5/PPPP1PPP/R1BQK1NR w KQkq - 2 6",'w',1,"Nd5#","Knight checkmate"]];
   for(let i=1;i<=20;i++){ let fen=turn='w',exp=1; if(i<=10) addPuzzle(i,"rnbqkbnr/pppp1ppp/8/4p3/5P2/8/PPPPP1PP/RNBQKBNR w KQkq - 0 1",'w',1,"fxe5#? No, better: simple back rank", "Mate in 1 puzzle"); } 
