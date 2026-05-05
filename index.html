@@ -56,13 +56,29 @@
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    overflow-x: hidden;
+    height: 100vh;
+    overflow: hidden;
+    min-height: 100vh; /* Ensures body is at least viewport height */
+    overflow-x: hidden; /* Prevents horizontal scrolling */
     transition: background 0.3s, color 0.3s;
   }
 
   /* ===== PAGES ===== */
-  .page { display:none; }
-  .page.active { display:flex; }
+  .page {
+    display: none;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    min-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    z-index: 0;
+  }
+  .page.active {
+    display: flex;
+    z-index: 10;
+  }
 
   /* ===== HOME PAGE ===== */
 #home {
@@ -72,7 +88,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    position: relative;
+    position: absolute;
+    inset: 0;
     overflow: hidden;
     background: 
         radial-gradient(
@@ -112,6 +129,7 @@
     opacity: 0.35;
     transform: scale(1.03);
     filter: saturate(1.2) brightness(0.7) blur(1px);
+    pointer-events: none;
   }
 
   #home::before {
@@ -226,7 +244,7 @@
     gap: 14px;
     width: min(580px, 90%);
     position: relative;
-    z-index: 1;
+    z-index: 2;
     animation: fadeUp 0.9s 0.2s ease both;
   }
 
@@ -252,6 +270,7 @@
     backdrop-filter: blur(16px);
     position: relative;
     overflow: hidden;
+    z-index: 2;
   }
 
   .home-btn::before {
@@ -2444,7 +2463,7 @@
 
 <!-- ===== CHALLENGE MODAL removed — now inline in page ===== -->
 
-<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script>
 // ===== SETTINGS =====
 const settings = {
@@ -3447,6 +3466,9 @@ function showPage(pageId) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const target = document.getElementById(pageId);
   if (target) target.classList.add('active');
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
 
   if (pageId === 'play-online') {
     showOnlineFind();
@@ -3458,6 +3480,7 @@ function showPage(pageId) {
     renderPuzzleGrid();
   }
 }
+window.showPage = showPage;
 
 function newGame(id) {
   delete games[id];
@@ -3681,12 +3704,25 @@ let mmCountdownInterval = null;
 let matchedOpponent = null;
 
 // Socket.io connection for real multiplayer
-const socket = io({
-  reconnection: true,
-  reconnectionDelay: 1000,
-  reconnectionDelayMax: 5000,
-  reconnectionAttempts: 5
-});
+let socket;
+if (typeof io !== 'undefined' && (window.location.protocol === 'http:' || window.location.protocol === 'https:')) {
+  socket = io({
+    reconnection: true,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000,
+    reconnectionAttempts: 5
+  });
+} else {
+  socket = {
+    on() {},
+    emit() {},
+    disconnect() {},
+    connected: false
+  };
+  if (typeof io !== 'undefined' && window.location.protocol === 'file:') {
+    console.warn('Socket.io is disabled when running from file:// origin. Play online features require HTTP/HTTPS.');
+  }
+}
 
 let currentRoomId = null;
 let currentPlayerId = null;
