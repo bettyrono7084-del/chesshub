@@ -111,7 +111,150 @@
       font-size: 11px;
       padding: 4px;
     }
+    
+    .navbar {
+      padding: 0 16px;
+      height: 52px;
+    }
+    .nav-brand {
+      font-size: 18px;
+    }
+    .nav-btn {
+      padding: 4px 10px;
+      font-size: 12px;
+    }
+    
+    .puzzle-grid {
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 8px;
+    }
+    .puzzle-card {
+      padding: 12px;
+    }
+    .puzzle-num {
+      font-size: 18px;
+    }
+    .puzzle-diff {
+      font-size: 10px;
+    }
+    
+    .puzzles-body {
+      padding: 16px;
+    }
+    .puzzles-title {
+      font-size: 22px;
+    }
   }
+  
+  @media (max-width: 480px) {
+    .navbar {
+      padding: 0 12px;
+      height: 48px;
+      flex-wrap: wrap;
+    }
+    .nav-brand {
+      font-size: 16px;
+      gap: 6px;
+    }
+    .nav-spacer {
+      flex: 1 100%;
+    }
+    .nav-btn {
+      padding: 3px 8px;
+      font-size: 11px;
+    }
+    
+    .puzzles-body {
+      padding: 12px;
+    }
+    .puzzles-title {
+      font-size: 18px;
+    }
+    .puzzles-sub {
+      font-size: 12px !important;
+    }
+    
+    .puzzle-grid {
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 6px;
+    }
+    .puzzle-card {
+      padding: 10px;
+      border-radius: 6px;
+    }
+    .puzzle-num {
+      font-size: 16px;
+    }
+    .puzzle-diff {
+      font-size: 9px;
+      line-height: 1.2;
+    }
+    .puzzle-status {
+      font-size: 16px;
+    }
+    
+    .puzzle-sidebar {
+      padding: 12px;
+      gap: 12px;
+    }
+    .puzzle-info-card {
+      padding: 12px;
+      border-radius: 8px;
+    }
+    .puzzle-objective {
+      font-size: 18px;
+    }
+    .puzzle-instruction {
+      font-size: 12px;
+    }
+    
+    .puzzle-main {
+      padding: 8px;
+    }
+    .chess-board {
+      width: 100%;
+      max-width: 280px;
+      height: auto;
+      aspect-ratio: 1;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+    }
+    .sq {
+      width: auto;
+      height: auto;
+      font-size: clamp(20px, 8vw, 28px);
+      aspect-ratio: 1;
+    }
+    .piece {
+      font-size: clamp(20px, 8vw, 28px);
+    }
+    
+    .modal {
+      padding: 20px;
+      border-radius: 16px;
+      max-width: 90vw;
+    }
+    .action-btn {
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+  }
+  
+  @media (max-width: 360px) {
+    .nav-brand {
+      font-size: 14px;
+    }
+    .puzzles-title {
+      font-size: 16px;
+    }
+    .puzzle-grid {
+      grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+    }
+    .puzzle-num {
+      font-size: 14px;
+    }
+  }
+
 </style>
 </head>
 <body data-board="default" data-pieces="classic">
@@ -169,6 +312,7 @@
           <div class="puzzle-moves-used">🎯 Moves used: <span id="puzzle-moves-count">0</span> / <span id="puzzle-max-moves">1</span></div>
           <div class="puzzle-buttons">
             <button class="ctrl-btn" onclick="resetCurrentPuzzle()">⟳ Reset</button>
+            <button class="ctrl-btn" onclick="undoMove('puzzle')">↩ Undo</button>
             <button class="ctrl-btn" onclick="showPuzzleHint()">💡 Hint</button>
             <button class="ctrl-btn" onclick="backToPuzzleList()">← Back</button>
           </div>
@@ -357,6 +501,64 @@
   function getLegalMovesForPiece(g, r, f){ const piece=g.board[r][f]; if(!piece || piece[0]!==g.turn) return []; const raw=getPieceMoves(g.board,r,f,g.castlingRights,g.enPassant); return raw.filter(([tr,tf])=>{ const testBoard=cloneBoard(g.board); const fromPiece=testBoard[r][f]; testBoard[tr][tf]=fromPiece; testBoard[r][f]=null; if(fromPiece[1]=='K' && tf-f===2){ testBoard[r][5]=testBoard[r][7]; testBoard[r][7]=null; } if(fromPiece[1]=='K' && f-tf===2){ testBoard[r][3]=testBoard[r][0]; testBoard[r][0]=null; } if(fromPiece[1]=='P' && tf!==f && !g.board[tr][tf]) testBoard[r][tf]=null; return !isInCheck(testBoard, piece[0]); }); }
   function getAllMoves(g, color){ let moves=[]; for(let i=0;i<8;i++) for(let j=0;j<8;j++) if(g.board[i][j] && g.board[i][j][0]===color) getLegalMovesForPiece(g,i,j).forEach(to=>moves.push({from:[i,j],to})); return moves; }
   function makePuzzleMove(g, from, to, promo='Q'){ const piece=g.board[from[0]][from[1]]; const captured=g.board[to[0]][to[1]]; if(captured) g.captured[piece[0]].push(captured); g.board[to[0]][to[1]]=piece; g.board[from[0]][from[1]]=null; if(piece[1]=='P' && (to[0]==0||to[0]==7)){ if(confirmAlwaysQueen) g.board[to[0]][to[1]]=piece[0]+'Q'; else { g.pendingPromotion={to,color:piece[0]}; showPromotionModal(); return false; } } g.lastMove={from,to}; g.moveHistory.push({from,to,piece,captured}); g.moveStrings.push(`${String.fromCharCode(97+from[1])}${8-from[0]}→${String.fromCharCode(97+to[1])}${8-to[0]}`); g.turn = (g.turn=='w'?'b':'w'); g.selected=null; renderPuzzleBoard(g); return true; }
+  function makePuzzleMove(g, from, to, promo='Q'){
+    const piece=g.board[from[0]][from[1]];
+    const captured=g.board[to[0]][to[1]];
+    if(captured) g.captured[piece[0]].push(captured);
+    g.board[to[0]][to[1]]=piece;
+    g.board[from[0]][from[1]]=null;
+    if(piece[1]=='P' && (to[0]==0||to[0]==7)){
+      if(confirmAlwaysQueen) g.board[to[0]][to[1]]=piece[0]+'Q';
+      else { g.pendingPromotion={to,color:piece[0]}; showPromotionModal(); return false; }
+    }
+    g.lastMove={from,to};
+    g.moveStrings.push(`${String.fromCharCode(97+from[1])}${8-from[0]}→${String.fromCharCode(97+to[1])}${8-to[0]}`);
+    g.turn = (g.turn === 'w' ? 'b' : 'w');
+    const stateSnapshot = {
+      board: g.board.map(r => [...r]),
+      turn: g.turn,
+      lastMove: { ...g.lastMove },
+      captured: { w: [...g.captured.w], b: [...g.captured.b] },
+      castlingRights: { ...g.castlingRights },
+      enPassant: g.enPassant ? [...g.enPassant] : null,
+    };
+    g.moveHistory.push(stateSnapshot);
+    g.currentMoveIndex = g.moveHistory.length;
+    g.selected=null;
+    renderPuzzleBoard(g);
+    return true;
+  }
+
+  function undoMove(id) {
+    const g = (id === 'puzzle') ? currentPuzzleGame : null;
+    if (!g || g.gameOver || g.pendingPromotion || id !== 'puzzle') return;
+    if (g.moveHistory.length === 0) return;
+
+    g.moveHistory.pop();
+    g.moveStrings.pop();
+
+    const newHistoryLen = g.moveHistory.length;
+    if (newHistoryLen === 0) {
+      resetCurrentPuzzle();
+      return;
+    }
+
+    const snapshot = g.moveHistory[newHistoryLen - 1];
+    g.board = snapshot.board.map(r => [...r]);
+    g.turn = snapshot.turn;
+    g.lastMove = snapshot.lastMove ? { ...snapshot.lastMove } : null;
+    g.captured = { w: [...snapshot.captured.w], b: [...snapshot.captured.b] };
+    g.castlingRights = { ...snapshot.castlingRights };
+    g.enPassant = snapshot.enPassant ? [...snapshot.enPassant] : null;
+    g.currentMoveIndex = newHistoryLen;
+    g.selected = null;
+    g.legalMoves = [];
+
+    renderPuzzleBoard(g);
+    updatePuzzleStatus();
+    const countEl = document.getElementById('puzzle-moves-count');
+    if (countEl) countEl.innerText = newHistoryLen;
+  }
 
   let confirmAlwaysQueen=true; // auto queen for puzzles
   g.currentMoveIndex = g.moveHistory.length; // Point to the end of history

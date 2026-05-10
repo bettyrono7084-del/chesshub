@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>CHECKMATE · Mobile Chess</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    :root {
+      --bg: #0f0e0c; --bg-mid: #1a1814; --bg-panel: #242018; --accent: #c9a84c; --accent-dim: #9e7e34;
+      --text: #f0ead6; --text-muted: #a89f88; --board-light: #f0d9b5; --board-dark: #b58863;
+      --hl-legal: rgba(106,168,79,0.5); --hl-check: rgba(200,40,40,0.7); --border: #3d3830;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+    
+    /* Screen Management */
+    .page, .game-screen { display: none; flex-direction: column; height: 100%; overflow-y: auto; }
+    .page.active, .game-screen.active { display: flex; }
+
+    /* Headers */
+    .mobile-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-mid); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .back-btn { background: none; border: none; font-size: 28px; color: var(--accent); cursor: pointer; padding: 0 8px 0 0; }
+    .game-title { font-family: 'Cinzel', serif; font-size: 18px; letter-spacing: 2px; color: var(--accent); }
+
+    /* Board UI */
+    .board-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px; min-height: 0; }
+    .board-wrap { width: 100%; max-width: min(94vw, 94vh); aspect-ratio: 1 / 1; border-radius: 4px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
+    .chess-board { display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); width: 100%; height: 100%; }
+    .sq { display: flex; align-items: center; justify-content: center; position: relative; }
+    .sq.light { background: var(--board-light); }
+    .sq.dark { background: var(--board-dark); }
+    .sq.selected { background: #f7f769 !important; }
+    .piece { font-size: clamp(30px, 10vw, 45px); cursor: pointer; user-select: none; z-index: 5; }
+
+    /* Home Styles */
+    .home-container { padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 20px; flex: 1; justify-content: center; }
+    .home-title { font-family: 'Cinzel', serif; font-size: 42px; letter-spacing: 6px; background: linear-gradient(135deg, var(--accent), #e8c96d); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 10px; }
+    .home-grid { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 380px; }
+    .home-btn { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 60px; padding: 16px; font-size: 16px; font-weight: 600; text-align: center; cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; gap: 12px; transition: 0.1s; }
+    .home-btn:active { background: var(--accent-dim); transform: scale(0.97); color: #000; }
+
+    /* Player/Game Bars */
+    .player-bar { display: flex; align-items: center; gap: 12px; padding: 8px 16px; background: var(--bg-mid); flex-shrink: 0; }
+    .player-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--bg-panel); display: flex; align-items: center; justify-content: center; font-size: 24px; border: 2px solid var(--accent); }
+    .player-info { flex: 1; }
+    .clock { background: var(--bg-panel); border-radius: 24px; padding: 6px 12px; font-size: 15px; font-weight: 700; }
+    
+    /* Selection Toggles */
+    .diff-option, .color-option { background: var(--bg-panel); padding: 10px 15px; border-radius: 40px; border: 2px solid transparent; cursor: pointer; margin: 5px; }
+    .diff-option.active, .color-option.active { border-color: var(--accent); background: var(--accent-dim); color: #000; }
+  </style>
+</head>
+<body>
+
+<div id="home-page" class="page active">
+  <div class="home-container">
+    <div class="home-title">CHECKMATE</div>
+    <div class="home-grid">
+      <button class="home-btn" data-nav="gameScreen">⚡ Play Offline (2P)</button>
+      <button class="home-btn" data-nav="comp-setup">🤖 Computer</button>
+      <button class="home-btn" data-nav="online-lobby">🌐 Play Online</button>
+      <button class="home-btn" data-nav="friends-lobby">👥 Friends</button>
+      <button class="home-btn" data-nav="puzzles-page">🧩 Puzzles</button>
+      <button class="home-btn" data-nav="settings-page">⚙️ Settings</button>
+    </div>
+  </div>
+</div>
+
+<div id="comp-setup" class="page">
+    <div class="home-container">
+      <div style="background: var(--bg-panel); border-radius: 32px; padding: 28px; width: 100%;">
+        <h2 style="font-family:'Cinzel'; text-align:center; margin-bottom: 20px;">🤖 Play Computer</h2>
+        <div style="display:flex; flex-wrap:wrap; gap:5px; justify-content:center; margin-bottom: 20px;">
+          <div class="diff-option active">Beginner</div>
+          <div class="diff-option">Intermediate</div>
+          <div class="diff-option">Master</div>
+        </div>
+        <div style="display:flex; justify-content:center; gap:10px; margin-bottom: 30px;">
+          <div class="color-option active">♔ White</div>
+          <div class="color-option">♚ Black</div>
+        </div>
+        <button class="home-btn" id="startCompBtn" style="background: var(--accent); color: #000; width: 100%;">START GAME</button>
+        <button class="home-btn" data-nav="home-page" style="margin-top:10px; width: 100%; background: none;">← BACK</button>
+      </div>
+    </div>
+</div>
+
+<div id="online-lobby" class="page">
+    <div class="mobile-header"><button class="back-btn" data-nav="home-page">←</button><span class="game-title">ONLINE</span><div></div></div>
+    <div class="home-container"><p>Searching for opponents...</p></div>
+</div>
+
+<div id="friends-lobby" class="page">
+    <div class="mobile-header"><button class="back-btn" data-nav="home-page">←</button><span class="game-title">FRIENDS</span><div></div></div>
+    <div class="home-container"><p>No friends online.</p></div>
+</div>
+
+<div id="puzzles-page" class="page">
+    <div class="mobile-header"><button class="back-btn" data-nav="home-page">←</button><span class="game-title">PUZZLES</span><div></div></div>
+    <div class="home-container"><p>Daily puzzle loading...</p></div>
+</div>
+
+<div id="settings-page" class="page">
+    <div class="mobile-header"><button class="back-btn" data-nav="home-page">←</button><span class="game-title">SETTINGS</span><div></div></div>
+    <div class="home-container"><p>Theme and Sound settings.</p></div>
+</div>
+
+<div id="gameScreen" class="game-screen">
+  <div class="mobile-header">
+    <button class="back-btn" data-nav="home-page">←</button>
+    <span class="game-title">♜ MATCH</span>
+    <div style="width:28px;"></div>
+  </div>
+  
+  <div class="player-bar">
+    <div class="player-avatar">♚</div>
+    <div class="player-info"><div class="player-name">Opponent</div></div>
+    <div class="clock">10:00</div>
+  </div>
+
+  <div class="board-container">
+    <div class="board-wrap">
+      <div class="chess-board" id="mobileBoard"></div>
+    </div>
+  </div>
+
+  <div class="player-bar">
+    <div class="player-avatar">♔</div>
+    <div class="player-info"><div class="player-name">You</div></div>
+    <div class="clock">10:00</div>
+  </div>
+</div>
+
+<script>
+(function() {
+    const PIECES = { wK:'♔',wQ:'♕',wR:'♖',wB:'♗',wN:'♘',wP:'♙', bK:'♚',bQ:'♛',bR:'♜',bB:'♝',bN:'♞',bP:'♟' };
+    const boardState = [
+        ['bR','bN','bB','bQ','bK','bB','bN','bR'],
+        ['bP','bP','bP','bP','bP','bP','bP','bP'],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        ['wP','wP','wP','wP','wP','wP','wP','wP'],
+        ['wR','wN','wB','wQ','wK','wB','wN','wR']
+    ];
+
+    let selectedSq = null;
+
+    function navigate(id) {
+        document.querySelectorAll('.page, .game-screen').forEach(p => p.classList.remove('active'));
+        const target = document.getElementById(id);
+        if(target) target.classList.add('active');
+    }
+
+    function renderBoard() {
+        const boardEl = document.getElementById('mobileBoard');
+        boardEl.innerHTML = '';
+        for(let r=0; r<8; r++) {
+            for(let c=0; c<8; c++) {
+                const sq = document.createElement('div');
+                sq.className = `sq ${(r+c)%2===0 ? 'light' : 'dark'}`;
+                sq.dataset.r = r; sq.dataset.c = c;
+                
+                const pieceCode = boardState[r][c];
+                if(pieceCode) {
+                    const pEl = document.createElement('div');
+                    pEl.className = 'piece';
+                    pEl.textContent = PIECES[pieceCode];
+                    sq.appendChild(pEl);
+                }
+                sq.onclick = () => handleSquareClick(r, c);
+                boardEl.appendChild(sq);
+            }
+        }
+    }
+
+    function handleSquareClick(r, c) {
+        const piece = boardState[r][c];
+        if (piece && (piece.startsWith('w') || piece.startsWith('b'))) {
+            document.querySelectorAll('.sq').forEach(s => s.classList.remove('selected'));
+            document.querySelector(`[data-r="${r}"][data-c="${c}"]`).classList.add('selected');
+            selectedSq = {r, c};
+        } else if (selectedSq) {
+            boardState[r][c] = boardState[selectedSq.r][selectedSq.c];
+            boardState[selectedSq.r][selectedSq.c] = null;
+            selectedSq = null;
+            renderBoard();
+        }
+    }
+
+    // Main Interaction Listener
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-nav], .diff-option, .color-option, #startCompBtn');
+        if(!btn) return;
+
+        if(btn.dataset.nav) {
+            navigate(btn.dataset.nav);
+            if(btn.dataset.nav === 'gameScreen') renderBoard();
+        }
+
+        if(btn.id === 'startCompBtn') {
+            navigate('gameScreen');
+            renderBoard();
+        }
+
+        if(btn.classList.contains('diff-option') || btn.classList.contains('color-option')) {
+            btn.parentElement.querySelectorAll('div').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+        }
+    });
+
+})();
+</script>
+</body>
+</html>

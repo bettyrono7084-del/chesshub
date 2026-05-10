@@ -7,7 +7,7 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
     body {
-      background: #0a2f1f;
+      background: #ec3f0aea;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -22,7 +22,7 @@
       box-shadow: 0 25px 45px rgba(0,0,0,0.5);
       border-radius: 0;
       overflow: hidden;
-      background: #1a3b2b;
+      background: #0d0e0def;
     }
     canvas { display: block; width: 100%; height: 100%; cursor: pointer; }
   </style>
@@ -36,24 +36,39 @@
   const canvas = document.getElementById('chessCanvas');
   const ctx    = canvas.getContext('2d');
 
-  // Leave enough room: 14px frame above, rank labels on left (30px),
-  // 28px below board for the bottom rank numbers row, plus frame below
-  const boardSize = 640;
-  const cellSize  = boardSize / 8;            // 80px
-  const offsetX   = (1366 - boardSize) / 2;  // centred
-  const offsetY   = (768  - boardSize) / 2 - 20; // shift up a bit so bottom row is visible
+  // Responsive sizing based on viewport
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  // Calculate responsive board size
+  function getBoardDimensions() {
+    const margin = 40;
+    const availWidth = canvas.width - margin * 2;
+    const availHeight = canvas.height - margin * 2;
+    const boardSize = Math.min(availWidth, availHeight);
+    return {
+      boardSize,
+      cellSize: boardSize / 8,
+      offsetX: (canvas.width - boardSize) / 2,
+      offsetY: (canvas.height - boardSize) / 2
+    };
+  }
 
   function makeGrassTile(dark) {
     const pc = document.createElement('canvas');
     pc.width = 10; pc.height = 8;
     const g  = pc.getContext('2d');
     if (dark) {
-      g.fillStyle = '#1b5e20'; g.fillRect(0,0,10,8);
-      g.fillStyle = '#2e7d32'; g.fillRect(0,0,10,4);
+      g.fillStyle = '#f8f3f3'; g.fillRect(0,0,10,8);
+      g.fillStyle = '#f6faf6'; g.fillRect(0,0,10,4);
       g.strokeStyle = 'rgba(61,139,65,0.5)'; g.lineWidth = 0.5;
     } else {
-      g.fillStyle = '#43a047'; g.fillRect(0,0,10,8);
-      g.fillStyle = '#4caf50'; g.fillRect(0,0,10,4);
+      g.fillStyle = '#f83e05f3'; g.fillRect(0,0,10,8);
+      g.fillStyle = '#f70505ef'; g.fillRect(0,0,10,4);
       g.strokeStyle = 'rgba(93,191,98,0.5)'; g.lineWidth = 0.5;
     }
     g.beginPath(); g.moveTo(0,0); g.lineTo(10,0); g.stroke();
@@ -174,6 +189,9 @@
   }
 
   function drawChessboardGrass() {
+    const dims = getBoardDimensions();
+    const {boardSize, cellSize, offsetX, offsetY} = dims;
+    
     /* wooden outer frame */
     ctx.fillStyle = '#5d4037';
     ctx.beginPath();
@@ -204,8 +222,9 @@
     ctx.restore();
 
     /* file labels (a–h) above */
+    const labelFontSize = Math.max(10, cellSize * 0.2);
     ctx.save();
-    ctx.fillStyle='#f5f5f5'; ctx.font='bold 13px monospace';
+    ctx.fillStyle='#f5f5f5'; ctx.font=`bold ${labelFontSize}px monospace`;
     ctx.textAlign='center'; ctx.textBaseline='bottom';
     ['a','b','c','d','e','f','g','h'].forEach((l,i)=>{
       ctx.fillText(l, offsetX+i*cellSize+cellSize/2, offsetY-6);
@@ -214,15 +233,15 @@
 
     /* rank labels left (8→1) */
     ctx.save();
-    ctx.fillStyle='#f5f5f5'; ctx.font='bold 13px monospace';
+    ctx.fillStyle='#f5f5f5'; ctx.font=`bold ${labelFontSize}px monospace`;
     ctx.textAlign='center'; ctx.textBaseline='middle';
     for(let i=0;i<8;i++) ctx.fillText(8-i, offsetX-16, offsetY+i*cellSize+cellSize/2);
     ctx.restore();
 
     /* ── bottom rank numbers 1–8 ── fully inside canvas */
-    const labelY = offsetY + boardSize + 16; // sits 16px below the board bottom edge
+    const labelY = offsetY + boardSize + 16;
     ctx.save();
-    ctx.font = 'bold 12px monospace';
+    ctx.font = `bold ${labelFontSize}px monospace`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     for (let col=0; col<8; col++) {
@@ -252,8 +271,11 @@
   }
 
   function drawFullScene() {
+    const dims = getBoardDimensions();
+    const {boardSize, cellSize, offsetX, offsetY} = dims;
+    
     ctx.fillStyle='#0e2818';
-    ctx.fillRect(0,0,1366,768);
+    ctx.fillRect(0,0,canvas.width,canvas.height);
 
     drawChessboardGrass();
 

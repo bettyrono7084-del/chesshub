@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -65,19 +65,22 @@
 
   /* ===== PAGES ===== */
   .page {
-    display: none;
-    position: absolute;
+    display: none !important;
+    position: fixed;
     inset: 0;
     width: 100%;
+    height: 100%;
     min-height: 100vh;
     overflow: hidden;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    z-index: 0;
+    z-index: -1;
+    visibility: hidden;
   }
   .page.active {
-    display: flex;
-    z-index: 10;
+    display: flex !important;
+    z-index: 100;
+    visibility: visible;
   }
 
   .inner-page {
@@ -203,9 +206,8 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 36px;
     box-shadow: 0 0 0 4px rgba(201,168,76,0.2), 0 10px 30px rgba(0,0,0,0.5), 0 0 40px rgba(58,143,224,0.2);
-    margin-bottom: 16px;
+    margin-bottom: 24px;
     border: 2px solid rgba(255,255,255,0.2);
-    animation: knightFloat 4s ease-in-out infinite;
   }
 
   @keyframes knightFloat {
@@ -233,7 +235,7 @@
     letter-spacing: 0.4em;
     text-transform: uppercase;
     color: var(--text2);
-    margin-top: 8px;
+    margin-top: 10px;
     animation: taglineReveal 2.2s 1.2s cubic-bezier(0.19, 1, 0.22, 1) both;
   }
 
@@ -632,7 +634,7 @@
     filter: drop-shadow(0 1px 0 rgba(255,255,255,0.2)) drop-shadow(0 2px 4px rgba(0,0,0,0.9));
   }
 
-  /* ===== PIECE THEME: Flame (Image 1 — colorful flame bases, white/black tops) ===== */
+  /* ===== PIECE THEME: Flame (Image 1 - colorful flame bases, white/black tops) ===== */
   body[data-pieces="flame"] .piece.white-piece {
     color: #ffffff;
     filter:
@@ -649,7 +651,7 @@
       drop-shadow(0 3px 5px rgba(0,0,0,0.9));
   }
 
-  /* ===== PIECE THEME: Rainbow (Image 2 — multi-colored pieces) ===== */
+  /* ===== PIECE THEME: Rainbow (Image 2 - multi-colored pieces) ===== */
   body[data-pieces="rainbow"] .piece { filter: none; }
   body[data-pieces="rainbow"] .sq:nth-child(1)  .piece, body[data-pieces="rainbow"] .sq:nth-child(9)  .piece { color: #e84c4c; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); }
   body[data-pieces="rainbow"] .sq:nth-child(2)  .piece, body[data-pieces="rainbow"] .sq:nth-child(10) .piece { color: #e87b20; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); }
@@ -660,7 +662,7 @@
   body[data-pieces="rainbow"] .sq:nth-child(7)  .piece, body[data-pieces="rainbow"] .sq:nth-child(15) .piece { color: #e91e63; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); }
   body[data-pieces="rainbow"] .sq:nth-child(8)  .piece, body[data-pieces="rainbow"] .sq:nth-child(16) .piece { color: #607d8b; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); }
 
-  /* ===== PIECE THEME: Carved (Image 3 — ornate carved wood, burnt/cream) ===== */
+  /* ===== PIECE THEME: Carved (Image 3 - ornate carved wood, burnt/cream) ===== */
   body[data-pieces="carved"] .piece.white-piece {
     color: #f0e6c8;
     filter:
@@ -676,7 +678,7 @@
       drop-shadow(0 2px 5px rgba(0,0,0,0.8));
   }
 
-  /* ===== PIECE THEME: Staunton (Image 4 — classic ebony/maple, high contrast) ===== */
+  /* ===== PIECE THEME: Staunton (Image 4 - classic ebony/maple, high contrast) ===== */
   body[data-pieces="staunton"] .piece.white-piece {
     color: #faf3e0;
     filter:
@@ -827,7 +829,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: 8px;
   }
 
   .setting-label {
@@ -900,7 +902,7 @@
     grid-template-columns: repeat(4, 24px);
     grid-template-rows: repeat(4, 24px);
     border: 2px solid var(--border2);
-    border-radius: 4px;
+    border-radius: 50%;
     overflow: hidden;
     flex-shrink: 0;
   }
@@ -930,7 +932,7 @@
   }
 
   .profile-avatar-big::after {
-    content: '✎';
+    content: 'Γ£Ä';
     position: absolute;
     inset: 0;
     background: rgba(0,0,0,0.5);
@@ -942,7 +944,8 @@
 
   .profile-avatar-big:hover::after { opacity: 1; }
 
-  .profile-info { flex: 1; }
+  .profile-info { flex: 1;}
+    
 
   .profile-input {
     background: var(--bg3);
@@ -962,7 +965,7 @@
 
   .profile-stat {
     display: flex;
-    gap: 16px;
+    gap: 8px;
     margin-top: 8px;
   }
 
@@ -971,7 +974,7 @@
     background: var(--bg3);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 8px 16px;
+    padding: 8px 10px;
   }
 
   .stat-val {
@@ -1622,122 +1625,407 @@
   .cp-avatar { width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,var(--gold),var(--teal)); display:flex; align-items:center; justify-content:center; font-size:32px; margin:0 auto 16px; border:3px solid var(--gold); }
   /* ... hidden existing MM / Friend elements ... */
 
-  /* ===== MOBILE RE-STYLE (Based on chess-mobile-skill.html) ===== */
-  @media (max-width: 850px) {
-    .home-buttons { width: 90%; grid-template-columns: 1fr; }
-    .home-title { font-size: 42px; letter-spacing: 0.1em; }
+  /* Hidden elements on desktop, shown on mobile */
+  .mobile-act-btns, .move-bar-nav { display: none; }
+  .mobile-header { display: none; }
 
-    .game-layout {
-      flex-direction: column !important;
-      display: flex !important;
+  /* ===== MOBILE LAYOUT ===== */
+  @media (max-width: 850px) {
+
+    /* ── Body & Pages ── */
+    body {
       overflow: hidden !important;
-      height: calc(100vh - 60px);
+      height: 100vh !important;
+      height: 100dvh !important;
+    }
+
+    /* ── PAGES: Ensure only active page is visible ── */
+    .page {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      height: 100dvh !important;
+    }
+
+    /* ── HOME PAGE ── */
+    .home-buttons { width: 90%; grid-template-columns: 1fr 1fr; }
+    .home-title { font-size: 42px; letter-spacing: 0.1em; }
+    .knight-icon {
+      width: 72px; height: 72px;
+      background: radial-gradient(circle at 40% 35%, #3a8fe0 0%, #1a5fa8 60%, #0e3d73 100%);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+      box-shadow: 0 0 0 4px rgba(201,168,76,0.2), 0 10px 30px rgba(0,0,0,0.5), 0 0 40px rgba(58,143,224,0.2);
+      margin-bottom: 16px !important;
+      border: 2px solid rgba(255,255,255,0.2);
+    }
+
+    /* ── INNER PAGES: replace navbar with mobile-header ── */
+    .navbar { display: none !important; }
+    .mobile-header {
+      display: flex !important;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border) !important;
+      flex-shrink: 0;
+      height: 52px;
+      min-height: 52px;
+      -webkit-tap-highlight-color: transparent;
+    }
+      .btn-icon {
+    width: 12px; height: 12px;
+    background: rgba(247, 7, 7, 0.12) !important;
+    border-radius: 50% !important;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: background 0.22s;
+  }
+    .mobile-back-btn {
+      background: none;
+      border: none;
+      font-size: 26px;
+      color: var(--gold);
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mobile-page-title {
+      font-family: 'Cinzel', serif;
+      font-size: 16px;
+      letter-spacing: 2px;
+      color: var(--gold);
+    }
+    .mobile-header-right { width: 36px; }
+
+    /* ── INNER PAGES: full-height flex column ── */
+    .inner-page {
+      flex-direction: column !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      overflow: hidden !important;
+    }
+
+    /* ── GAME LAYOUT: flex column with ordered components ── */
+    .game-layout {
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 1 !important;
+      overflow: hidden !important;
+      height: 0 !important; /* Flex child takes remaining space */
+      min-height: 0 !important;
       padding: 0 !important;
       gap: 0 !important;
     }
 
-    .game-sidebar, .game-right, .game-main {
-      width: 100% !important;
-      display: contents !important; /* Allow reordering of children in game-layout */
+    /* Unlink sidebars - use display:contents to extract children */
+    .game-sidebar {
+      display: contents !important;
+    }
+    .game-right {
+      display: contents !important;
     }
 
-    /* Order 1: Move Bar */
+    /* ── PLAYER BARS ── */
+    .player-card {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      height: 60px !important;
+      min-height: 60px !important;
+      max-height: 60px !important;
+      padding: 0px 14px !important;
+      gap: 10px !important;
+      background: var(--bg2) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 0 !important;
+      flex-shrink: 0 !important;
+      overflow: hidden !important;
+    }
+    /* Top player = opponent (3rd in visual order) */
+    .game-sidebar .player-card:first-of-type { 
+      order: 3 !important;
+      border-bottom: 1px solid var(--border) !important;
+    }
+    /* Bottom player = you (5th in visual order) */
+    .game-sidebar .player-card:last-of-type  { 
+      order: 5 !important;
+      border-top: 1px solid var(--border) !important;
+    }
+
+    .player-avatar {
+      width: 40px !important; height: 40px !important;
+      font-size: 18px !important;
+      flex-shrink: 0 !important;
+      border: 2px solid var(--border2) !important;
+    }
+    .player-name  { font-size: 13px !important; }
+    .player-rating { font-size: 11px !important; }
+    .captured-pieces { font-size: 12px !important; letter-spacing: -1px !important; }
+
+    .player-timer {
+      margin-left: auto !important;
+      background: var(--bg3) !important;
+      border: 1px solid var(--border2) !important;
+      border-radius: 8px !important;
+      padding: 5px 10px !important;
+      font-size: 14px !important;
+      min-width: 70px !important;
+      text-align: center !important;
+      flex-shrink: 0 !important;
+      font-family: 'Cinzel', serif;
+    }
+    .player-timer.active {
+      border-color: var(--gold) !important;
+      color: var(--gold) !important;
+      background: rgba(201,168,76,0.1) !important;
+    }
+
+    /* ── MOVE HISTORY BAR (1st in visual order) ── */
     .move-list-container {
-      order: 1; height: 44px; min-height: 44px;
-      background: var(--bg3); border-radius: 0; border: none; border-bottom: 1px solid var(--border);
-      padding: 0 8px; display: flex !important; align-items: center; overflow-x: auto; gap: 8px;
+      order: 1 !important;
+      height: 40px !important;
+      min-height: 40px !important;
+      max-height: 40px !important;
+      background: var(--bg3) !important;
+      border: none !important;
+      border-radius: 0 !important;
+      border-bottom: 1px solid var(--border) !important;
+      padding: 0 8px !important;
+      display: flex !important;
+      align-items: center !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      gap: 6px !important;
+      flex-shrink: 0 !important;
     }
-    .move-list-title, .game-controls { display: none !important; }
-    .move-list { flex-direction: row !important; height: 100%; align-items: center; gap: 6px; overflow-y: hidden; }
-    .move-row { display: flex !important; gap: 4px; padding: 0 !important; white-space: nowrap; }
+    .move-list-container::-webkit-scrollbar { height: 0; }
+    .move-list-title { display: none !important; }
+    .game-controls { display: none !important; }
+    .move-list {
+      flex-direction: row !important;
+      height: 100% !important;
+      align-items: center !important;
+      gap: 4px !important;
+      overflow-y: hidden !important;
+      flex-wrap: nowrap !important;
+    }
+    .move-row {
+      display: flex !important;
+      gap: 3px !important;
+      padding: 0 !important;
+      white-space: nowrap !important;
+    }
+    .move-num { font-size: 10px !important; color: var(--text3) !important; margin-top: 2px !important; }
     .move-cell {
-      background: rgba(255,255,255,0.08); border-radius: 6px; padding: 4px 9px !important;
-      font-size: 12px; color: var(--text2);
+      background: rgba(255,255,255,0.07) !important;
+      border-radius: 5px !important;
+      padding: 3px 7px !important;
+      font-size: 11px !important;
+      color: var(--text2) !important;
     }
-    .move-cell.current { background: var(--gold) !important; color: #000 !important; font-weight: 700; }
-    .move-num { font-size: 11px; margin-top: 4px; }
+    .move-cell.current { background: var(--gold) !important; color: #000 !important; font-weight: 700 !important; }
 
-    /* Mobile-specific nav icons for move bar */
+    /* Move-bar navigation buttons */
     .move-bar-nav {
-      display: flex; gap: 4px; margin-left: auto; align-items: center;
+      display: flex !important;
+      gap: 4px !important;
+      margin-left: auto !important;
+      align-items: center !important;
+      flex-shrink: 0 !important;
     }
     .m-nav-btn {
-      width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.09);
-      border: none; color: var(--text); display: flex; align-items: center; justify-content: center;
+      width: 26px !important; height: 26px !important;
+      border-radius: 50% !important;
+      background: rgba(255,255,255,0.08) !important;
+      border: none !important;
+      color: var(--text) !important;
+      font-size: 12px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      flex-shrink: 0 !important;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    /* Order 2: Opening Bar */
+    /* ── STATUS BAR (2nd in visual order) ── */
     .status-card {
-      order: 2; height: 38px; min-height: 38px; border-radius: 0; border: none;
-      border-bottom: 1px solid var(--border); background: var(--bg2);
-      display: flex !important; align-items: center; padding: 0 12px !important;
-      flex-direction: row !important; justify-content: space-between !important;
+      order: 2 !important;
+      height: 44px !important;
+      min-height: 44px !important;
+      max-height: 44px !important;
+      border-radius: 0 !important;
+      border: none !important;
+      border-bottom: 1px solid var(--border) !important;
+      background: var(--bg2) !important;
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      padding: 0 12px !important;
+      flex-shrink: 0 !important;
     }
     .status-label { display: none !important; }
-    .status-text { display: none !important; } /* Replaced by opening label in this spot */
+    .status-text  { display: none !important; }
     .opening-name {
-      margin: 0 !important; font-size: 13px; color: var(--text2); font-style: normal;
-      display: flex; align-items: center; gap: 6px;
+      margin: 0 !important;
+      font-size: 12px !important;
+      color: var(--text2) !important;
+      font-style: normal !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 5px !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
     }
-    .opening-name::before { content: '📖'; }
-    .mobile-act-btns { display: flex !important; gap: 10px; }
+    .opening-name::before { content: '📖'; font-size: 13px; }
+    .mobile-act-btns {
+      display: flex !important;
+      gap: 8px !important;
+      align-items: center !important;
+      flex-shrink: 0 !important;
+    }
     .m-act-btn {
-      width: 30px; height: 30px; border-radius: 50%; background: var(--bg);
-      border: none; display: flex; align-items: center; justify-content: center;
+      width: 30px !important; height: 30px !important;
+      border-radius: 50% !important;
+      background: var(--bg3) !important;
+      border: 1px solid var(--border2) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    /* Order 3 & 5: Player Bars */
-    .player-card {
-      height: 62px; min-height: 62px; background: var(--bg); border: none; border-radius: 0;
-      padding: 0 12px; gap: 10px;
-    }
-    /* Re-order Player Cards (Sidebar always has Opp, then User) */
-    .game-sidebar .player-card:nth-of-type(1) { order: 3; }
-    .game-sidebar .player-card:nth-of-type(2) { order: 5; }
-    
-    .player-avatar { width: 42px; height: 42px; border: 2px solid rgba(255,255,255,0.1); }
-    .player-timer {
-      margin-left: auto; height: 34px; padding: 0 10px; min-width: 80px;
-      display: flex; align-items: center; justify-content: center; font-size: 15px;
-      background: var(--bg3); border-radius: 8px; border-color: var(--border2);
-    }
-
-    /* Order 4: Board */
+    /* ── BOARD AREA (4th in visual order, takes remaining space) ── */
     .game-main {
-      order: 4; flex: 1 !important; display: flex !important;
-      align-items: center !important; justify-content: center !important;
-      padding: 0 !important; background: var(--bg) !important;
+      order: 4 !important;
+      flex: 1 !important;
+      min-height: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 0px !important;
+      background: var(--bg) !important;
     }
-    .board-wrapper { width: 100% !important; padding: 0 10px; }
-    .board-container { display: block !important; }
+    .board-wrapper {
+      width: 100% !important;
+      max-width: min(100vw, calc(100dvh - 304px)) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+    }
+    .board-container { display: block !important; width: 100% !important; }
+    .board-coords-left, .board-coords-bottom { display: none !important; }
     .chess-board {
-      width: 100% !important; height: auto !important; aspect-ratio: 1/1 !important;
+      width: 100% !important;
+      height: auto !important;
+      aspect-ratio: 1 / 1 !important;
       grid-template-columns: repeat(8, 1fr) !important;
       grid-template-rows: repeat(8, 1fr) !important;
-      max-width: none !important; border-radius: 0 !important;
+      max-width: none !important;
+      border-radius: 2px !important;
+      border-width: 2px !important;
     }
-    .sq { width: 100% !important; height: 100% !important; min-width: 0 !important; }
-    .sq .piece { font-size: clamp(22px, 9vw, 36px); }
-    .board-coords-left, .board-coords-bottom { display: none !important; }
+    .sq {
+      width: 100% !important;
+      height: 100% !important;
+      min-width: 0 !important;
+      font-size: clamp(20px, 9vw, 38px) !important;
+    }
+    .sq .piece { font-size: clamp(20px, 9vw, 38px) !important; }
+    .sq.legal-move::after { width: 18px; height: 18px; }
 
-    /* Order 6: Chat Bar */
+    /* ── CHAT BAR (6th in visual order) ── */
     .chat-container {
-      order: 6; margin: 0; border: none; border-top: 1px solid var(--border);
-      border-radius: 0; background: var(--bg2); min-height: 52px !important;
+      order: 6 !important;
+      margin-bottom: 100px !important;
+      margin-top: 0 !important;
+      border: none !important;
+      border-top: 1px solid var(--border) !important;
+      border-radius: 0 !important;
+      background: var(--bg2) !important;
+      min-height: 48px !important;
+      max-height: 48px !important;
+      flex-shrink: 0 !important;
     }
     .chat-messages { display: none !important; }
     .chat-container.open-mobile {
-      position: fixed; inset: 0; z-index: 1000; height: 100vh !important;
-      background: var(--bg-panel); display: flex !important;
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 1000 !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      background: var(--bg2) !important;
+      display: flex !important;
+      max-height: 100vh !important;
+      border: none !important;
     }
     .chat-container.open-mobile .chat-messages { display: flex !important; }
 
-    /* Hide desktop buttons */
-    .game-right > .action-btn { display: none; }
-  }
+    /* ── HIDE desktop-only buttons ── */
+    .desktop-only,
+    .game-right > .action-btn:not(.desktop-only) { display: none !important; }
 
-  /* Hidden elements on desktop, shown on mobile */
-  .mobile-act-btns, .move-bar-nav { display: none; }
+    /* ── SETTINGS responsive ── */
+    .settings-body { display: block !important; width: 100% !important; }
+    .settings-grid { grid-template-columns: 1fr !important; margin:0 !important;
+       gap: 12px !important; display: block !important;
+       width: 100% !important }
+       width: 100% !important; padding: 0 16px; }
+    .settings-card {
+      margin-bottom: 12px;
+      padding: 16px !important;
+    }
+    .settings-card.full-width { grid-column: 1 !important; width: 100% }
+    .settings-card.full-width { grid-column: 1 !important; width: 100%; }
+    .profile-avatar-big { margin: 0 auto 12px; }
+    .profile-section { flex-direction: column !important; align-items: flex-start !important; }
+    .profile-input {  padding: 8px 8px;}
+    .profile-info {     width: 100% !important;
+      max-width: min(100vw, calc(100dvh - 52px - 60px - 40px - 38px - 60px)) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;}
+
+    /* ── PUZZLES responsive ── */
+    .puzzles-body { padding: 16px !important; overflow-y: auto !important; }
+    .puzzle-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)) !important; }
+    .puzzle-game-layout { flex-direction: column !important; height: 100% !important; overflow: hidden !important; }
+    .puzzle-sidebar { 
+      width: 100% !important; border-right: none !important; border-bottom: 1px solid var(--border) !important; 
+      padding: 12px !important; gap: 10px !important; height: auto !important; flex-shrink: 0 !important;
+    }
+    .puzzle-main { flex: 1 !important; padding: 12px !important; display: flex !important; align-items: center !important; }
+    .puzzle-info-card { padding: 12px !important; }
+    .puzzle-objective { font-size: 18px !important; }
+    .game-right[style*="width:240px"] { width: 100% !important; border-left: none !important; border-top: 1px solid var(--border) !important; padding: 12px !important; }
+    .puzzle-game-screen .game-right { width: 100% !important; border-left: none !important; border-top: 1px solid var(--border) !important; padding: 12px !important; display: flex !important; flex-direction: column !important; }
+    .board-preview {  grid-template-columns: repeat(4, 12px) !important;
+    grid-template-rows: repeat(4, 12px) !important;}
+    /* ── COMPUTER SETUP responsive ── */
+    .comp-setup { padding: 16px !important; }
+    .comp-card { padding: 24px 16px !important; }
+    .diff-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+
+    /* ── MATCHMAKING responsive ── */
+    .matchmaking-card { width: 92% !important; padding: 32px 20px !important; }
+
+    /* ── FRIENDS PAGE responsive ── */
+    .friends-page-body { flex-direction: column !important; overflow-y: auto !important; }
+    .friends-search-panel { width: 100% !important; border-right: none !important; border-bottom: 1px solid var(--border) !important; }
+    .friend-game-area { min-height: 200px !important; }
+
+  } /* end @media (max-width: 850px) */
 </style>
 </head>
 <body data-board="default" data-pieces="hammurabi">
@@ -1745,7 +2033,7 @@
 <!-- ===== HOME PAGE ===== -->
 <div id="home" class="page active">
   <div id="home-bg">
-    <iframe class="home-bg-iframe" src="Animation.html" tabindex="-1" aria-hidden="true"></iframe>
+    <iframe class="home-bg-iframe" src="animationback.html" tabindex="-1" aria-hidden="true"></iframe>
   </div>
   <div class="home-logo-area">
     <div class="knight-icon">♞</div>
@@ -1766,11 +2054,11 @@
       <span>Play with Friends</span>
     </button>
     <button class="home-btn" onclick="showPage('puzzles')">
-      <div class="btn-icon">🧩</div>
+      <div class="btn-icon">🎮</div>
       <span>Chess Puzzles</span>
     </button>
     <button class="home-btn" onclick="showPage('play-offline')">
-      <div class="btn-icon">⚡</div>
+      <div class="btn-icon">💻</div>
       <span>Play Offline</span>
     </button>
     <button class="home-btn" onclick="showPage('settings')">
@@ -1782,6 +2070,11 @@
 
 <!-- ===== PLAY ONLINE PAGE ===== -->
 <div id="play-online" class="page inner-page">
+  <div class="mobile-header">
+    <button class="mobile-back-btn" onclick="cancelMatchmaking();showPage('home')">←</button>
+    <span class="mobile-page-title">ONLINE</span>
+    <div class="mobile-header-right"></div>
+  </div>
   <nav class="navbar">
     <div class="nav-brand" onclick="cancelMatchmaking();showPage('home')">
       <div class="nav-knight">♞</div> CHECKMATE
@@ -1795,7 +2088,7 @@
       <div class="mm-icon">🌐</div>
       <div class="mm-title">Play Online</div>
       <div class="mm-sub">You'll be matched with a random opponent.<br>The first player to enter the queue plays as <strong style="color:var(--gold)">White</strong>.</div>
-      <button class="action-btn" style="max-width:240px;margin:0 auto 16px;display:block;font-size:16px;padding:16px;" onclick="startMatchmaking()">🔍 Find a Game</button>
+      <button class="action-btn" style="max-width:240px;margin:0 auto 16px;display:block;font-size:16px;padding:16px;" onclick="startMatchmaking()">⚡ Find a Game</button>
       <button class="action-btn secondary" style="max-width:240px;margin:0 auto;display:block;" onclick="showPage('home')">← Back</button>
     </div>
   </div>
@@ -1804,10 +2097,10 @@
   <div id="online-search-screen" class="matchmaking-wrap" style="display:none;">
     <div class="matchmaking-card">
       <div class="spinner-ring"></div>
-      <div class="mm-title">Searching for Opponent…</div>
+      <div class="mm-title">Searching for Opponent...</div>
       <div class="mm-timer" id="mm-timer">0:00</div>
       <div class="mm-queue-info" id="mm-queue-info">Players in queue: <strong id="mm-queue-count">1</strong></div>
-      <div style="margin-top:8px;color:var(--text3);font-size:12px;">You are <strong style="color:var(--gold)">White</strong> — first in queue</div>
+      <div style="margin-top:8px;color:var(--text3);font-size:12px;">You are <strong style="color:var(--gold)">White</strong> – first in queue</div>
       <button class="action-btn secondary" style="max-width:200px;margin:28px auto 0;display:block;" onclick="cancelMatchmaking()">Cancel</button>
     </div>
   </div>
@@ -1835,7 +2128,7 @@
         <div class="player-avatar black-player" id="online-opp-avatar">♚</div>
         <div>
           <div class="player-name" id="online-opp-name">Opponent</div>
-          <div class="player-rating" id="online-opp-elo">⭐ — ELO</div>
+          <div class="player-rating" id="online-opp-elo">♞ – ELO</div>
           <div class="captured-pieces" id="online-cap-black"></div>
         </div>
         <div class="player-timer" id="online-timer-black">10:00</div>
@@ -1845,16 +2138,16 @@
         <div class="move-list" id="online-moves"></div>
       </div>
       <div class="game-controls">
-        <button class="ctrl-btn" title="First" onclick="navigateMoves('first','online')">⏮</button>
+        <button class="ctrl-btn" title="First" onclick="navigateMoves('first','online')">|<</button>
         <button class="ctrl-btn" title="Prev" onclick="navigateMoves('prev','online')">◀</button>
         <button class="ctrl-btn" title="Next" onclick="navigateMoves('next','online')">▶</button>
-        <button class="ctrl-btn" title="Last" onclick="navigateMoves('last','online')">⏭</button>
+        <button class="ctrl-btn" title="Last" onclick="navigateMoves('last','online')">>|</button>
       </div>
       <div class="player-card">
         <div class="player-avatar white-player" id="online-you-avatar">♔</div>
         <div>
           <div class="player-name" id="online-you-name">You</div>
-          <div class="player-rating">⭐ 1650 ELO</div>
+          <div class="player-rating">♞ 1650 ELO</div>
           <div class="captured-pieces" id="online-cap-white"></div>
         </div>
       </div>
@@ -1879,7 +2172,7 @@
       <div class="chat-container">
         <div class="move-list-title" style="padding: 8px 12px 0;">Game Chat</div>
         <div class="chat-messages" id="online-chat-msgs"></div>
-        <div class="chat-badge" id="online-chat-badge" onclick="scrollToBottom('online')">New Messages ↓</div>
+        <div class="chat-badge" id="online-chat-badge" onclick="scrollToBottom('online')">New Messages ✕</div>
         <div class="chat-input-wrap">
           <input type="text" id="online-chat-input" placeholder="Say hello..." onkeydown="if(event.key==='Enter') sendChat('online')">
           <button onclick="sendChat('online')">Send</button>
@@ -1895,6 +2188,11 @@
 
 <!-- ===== PLAY COMPUTER PAGE ===== -->
 <div id="play-computer" class="page inner-page">
+  <div class="mobile-header">
+    <button class="mobile-back-btn" onclick="showPage('home')">←</button>
+    <span class="mobile-page-title">VS COMPUTER</span>
+    <div class="mobile-header-right"></div>
+  </div>
   <nav class="navbar">
     <div class="nav-brand" onclick="showPage('home')">
       <div class="nav-knight">♞</div> CHECKMATE
@@ -1908,19 +2206,19 @@
       <div class="comp-sub">Choose your difficulty and color to begin</div>
       <div class="diff-grid">
         <div class="diff-option active" onclick="selectDiff(this,'easy')">
-          <div class="diff-name">🌱 Beginner</div>
+          <div class="diff-name">🟢 Beginner</div>
           <div class="diff-desc">Perfect for learning</div>
         </div>
         <div class="diff-option" onclick="selectDiff(this,'medium')">
-          <div class="diff-name">⚔️ Intermediate</div>
+          <div class="diff-name">💪 Intermediate</div>
           <div class="diff-desc">A fair challenge</div>
         </div>
         <div class="diff-option" onclick="selectDiff(this,'hard')">
-          <div class="diff-name">🔥 Advanced</div>
+          <div class="diff-name">🟡 Advanced</div>
           <div class="diff-desc">For serious players</div>
         </div>
         <div class="diff-option" onclick="selectDiff(this,'master')">
-          <div class="diff-name">👑 Master</div>
+          <div class="diff-name">🔴 Master</div>
           <div class="diff-desc">Can you beat it?</div>
         </div>
       </div>
@@ -1939,7 +2237,7 @@
         <div class="player-avatar black-player" id="comp-top-avatar">🤖</div>
         <div>
           <div class="player-name" id="comp-top-name">Computer</div>
-          <div class="player-rating" id="comp-top-rating">⭐ AI</div>
+          <div class="player-rating" id="comp-top-rating">♞ AI</div>
           <div class="captured-pieces" id="comp-cap-black"></div>
         </div>
       </div>
@@ -1948,8 +2246,8 @@
         <div class="move-list" id="comp-moves"></div>
         <!-- Mobile Nav added -->
         <div class="move-bar-nav">
-           <button class="m-nav-btn" onclick="navigateMoves('prev','comp')">‹</button>
-           <button class="m-nav-btn" onclick="navigateMoves('next','comp')">›</button>
+           <button class="m-nav-btn" onclick="navigateMoves('prev','comp')">◀</button>
+           <button class="m-nav-btn" onclick="navigateMoves('next','comp')">▶</button>
            <button class="m-nav-btn" style="background:var(--gold); color:#000;">
              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 22H5v-2h14v2zM12 3a5 5 0 015 5c0 2.38-1.19 4.47-3 5.74V16H10v-2.26C8.19 12.47 7 10.38 7 8a5 5 0 015-5z"/></svg>
            </button>
@@ -1965,7 +2263,7 @@
         <div class="player-avatar white-player" id="comp-bottom-avatar">♔</div>
         <div>
           <div class="player-name" id="comp-bottom-name">You</div>
-          <div class="player-rating">⭐ 1650 ELO</div>
+          <div class="player-rating">Γ¡É 1650 ELO</div>
           <div class="captured-pieces" id="comp-cap-white"></div>
         </div>
       </div>
@@ -2005,6 +2303,11 @@
 
 <!-- ===== PLAY WITH FRIENDS PAGE ===== -->
 <div id="play-friends" class="page inner-page">
+  <div class="mobile-header">
+    <button class="mobile-back-btn" onclick="cancelFriendGame();showPage('home')">←</button>
+    <span class="mobile-page-title">FRIENDS</span>
+    <div class="mobile-header-right"></div>
+  </div>
   <nav class="navbar">
     <div class="nav-brand" onclick="cancelFriendGame();showPage('home')">
       <div class="nav-knight">♞</div> CHECKMATE
@@ -2019,8 +2322,8 @@
       <div class="search-header">
         <div class="search-title">👥 Find a Player</div>
         <div class="search-input-wrap">
-          <span>🔍</span>
-          <input class="search-input" id="friend-search-input" type="text" placeholder="Search by username…"
+          <span>⚡</span>
+          <input class="search-input" id="friend-search-input" type="text" placeholder="Search by username..."
             oninput="onFriendSearch(this.value)"
             onkeydown="if(event.key==='Enter')doFriendSearch()">
           <button class="search-btn-inner" onclick="doFriendSearch()">Go</button>
@@ -2029,7 +2332,7 @@
       <div class="search-results" id="friend-search-results">
         <!-- populated by JS -->
         <div class="empty-search">
-          <div class="empty-search-icon">🔍</div>
+          <div class="empty-search-icon">⚡</div>
           Type a username to search for players
         </div>
       </div>
@@ -2052,7 +2355,7 @@
         <div class="player-avatar black-player" id="friends-opp-avatar">♚</div>
         <div>
           <div class="player-name" id="friends-opp-name">Opponent</div>
-          <div class="player-rating" id="friends-opp-elo">⭐ — ELO</div>
+          <div class="player-rating" id="friends-opp-elo">♞ – ELO</div>
           <div class="captured-pieces" id="friends-cap-black"></div>
         </div>
         <div class="player-timer" id="friends-timer-black">10:00</div>
@@ -2062,8 +2365,8 @@
         <div class="move-list" id="friends-moves"></div>
         <!-- Mobile Nav added -->
         <div class="move-bar-nav">
-           <button class="m-nav-btn" onclick="navigateMoves('prev','friends')">‹</button>
-           <button class="m-nav-btn" onclick="navigateMoves('next','friends')">›</button>
+           <button class="m-nav-btn" onclick="navigateMoves('prev','friends')">◀</button>
+           <button class="m-nav-btn" onclick="navigateMoves('next','friends')">▶</button>
            <button class="m-nav-btn" style="background:var(--gold); color:#000;">
              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 22H5v-2h14v2zM12 3a5 5 0 015 5c0 2.38-1.19 4.47-3 5.74V16H10v-2.26C8.19 12.47 7 10.38 7 8a5 5 0 015-5z"/></svg>
            </button>
@@ -2079,7 +2382,7 @@
         <div class="player-avatar white-player" id="friends-you-avatar">♔</div>
         <div>
           <div class="player-name">You (White)</div>
-          <div class="player-rating">⭐ 1650 ELO</div>
+          <div class="player-rating">Γ¡É 1650 ELO</div>
           <div class="captured-pieces" id="friends-cap-white"></div>
         </div>
       </div>
@@ -2114,7 +2417,7 @@
       <div class="chat-container" id="friends-chat-box">
         <div class="move-list-title" style="padding: 8px 12px 0;" onclick="toggleMobileChat('friends')">Game Chat</div>
         <div class="chat-messages" id="friends-chat-msgs"></div>
-        <div class="chat-badge" id="friends-chat-badge" onclick="scrollToBottom('friends')">New Messages ↓</div>
+        <div class="chat-badge" id="friends-chat-badge" onclick="scrollToBottom('friends')">New Messages ↴</div>
         <div class="chat-input-wrap">
           <input type="text" id="friends-chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendChat('friends')">
           <button onclick="sendChat('friends')">Send</button>
@@ -2124,13 +2427,18 @@
       <button class="action-btn desktop-only" onclick="cancelFriendGame()">New Game</button>
       <button class="action-btn secondary desktop-only" onclick="resignGame()">Resign</button>
       <button class="action-btn secondary desktop-only" onclick="offerDraw()">Offer Draw</button>
-      <button class="action-btn secondary desktop-only" onclick="cancelFriendGame();showPage('home')">← Home</button>
+      <button class="action-btn secondary desktop-only" onclick="showPage('home')">← Home</button>
     </div>
   </div>
 </div>
 
 <!-- ===== CHESS PUZZLES PAGE ===== -->
 <div id="puzzles" class="page inner-page">
+  <div class="mobile-header">
+    <button class="mobile-back-btn" onclick="showPage('home')">←</button>
+    <span class="mobile-page-title">PUZZLES</span>
+    <div class="mobile-header-right"></div>
+  </div>
   <nav class="navbar">
     <div class="nav-brand" onclick="showPage('home')">
       <div class="nav-knight">♞</div> CHECKMATE
@@ -2141,8 +2449,8 @@
   <!-- Puzzle selection grid -->
   <div id="puzzle-select-screen" class="puzzles-body">
     <div class="puzzles-header">
-      <div class="puzzles-title">♟️ MATE IN 1 · 2 · 3</div>
-      <div class="puzzles-sub">100 checkmate puzzles — deliver the final blow in the required moves.</div>
+      <div class="puzzles-title">♟ MATE IN 1 • 2 • 3</div>
+      <div class="puzzles-sub">100 checkmate puzzles ΓÇö deliver the final blow in the required moves.</div>
       <div style="margin-top:16px; display:flex; gap:6px; flex-wrap:wrap;">
         <button class="diff-btn active" onclick="filterPuzzlesGrid('all')">All</button>
         <button class="diff-btn" onclick="filterPuzzlesGrid('beginner')">Beginner (1-25)</button>
@@ -2161,11 +2469,11 @@
         <div class="puzzle-info-card">
           <div style="font-size:13px; letter-spacing:2px;">⚡ PUZZLE #<span id="puzzle-current-id">0</span></div>
           <div class="puzzle-objective" id="puzzle-objective">Mate in 1</div>
-          <div class="puzzle-instruction" id="puzzle-instruction">White to move — deliver checkmate!</div>
-          <div class="puzzle-moves-used">🎯 Moves used: <span id="puzzle-moves-count">0</span> / <span id="puzzle-max-moves">1</span></div>
+          <div class="puzzle-instruction" id="puzzle-instruction">White to move – deliver checkmate!</div>
+          <div class="puzzle-moves-used">♟ Moves used: <span id="puzzle-moves-count">0</span> / <span id="puzzle-max-moves">1</span></div>
           <div class="puzzle-buttons">
-            <button class="ctrl-btn" onclick="resetCurrentPuzzle()">⟳ Reset</button>
-            <button class="ctrl-btn" onclick="undoMove('puzzle')">↩ Undo</button>
+            <button class="ctrl-btn" onclick="resetCurrentPuzzle()">🔄 Reset</button>
+            <button class="ctrl-btn" onclick="undoMove('puzzle')">↶ Undo</button>
             <button class="ctrl-btn" onclick="showPuzzleHint()">💡 Hint</button>
             <button class="ctrl-btn" onclick="backToPuzzleList()">← Back</button>
           </div>
@@ -2195,6 +2503,11 @@
 
 <!-- ===== PLAY OFFLINE PAGE ===== -->
 <div id="play-offline" class="page inner-page">
+  <div class="mobile-header">
+    <button class="mobile-back-btn" onclick="showPage('home')">←</button>
+    <span class="mobile-page-title">OFFLINE</span>
+    <div class="mobile-header-right"></div>
+  </div>
   <nav class="navbar">
     <div class="nav-brand" onclick="showPage('home')">
       <div class="nav-knight">♞</div> CHECKMATE
@@ -2274,6 +2587,11 @@
 
 <!-- ===== SETTINGS PAGE ===== -->
 <div id="settings" class="page inner-page">
+  <div class="mobile-header">
+    <button class="mobile-back-btn" onclick="showPage('home')">←</button>
+    <span class="mobile-page-title">SETTINGS</span>
+    <div class="mobile-header-right"></div>
+  </div>
   <nav class="navbar">
     <div class="nav-brand" onclick="showPage('home')">
       <div class="nav-knight">♞</div> CHECKMATE
@@ -2309,7 +2627,6 @@
         <div class="setting-row">
           <div>
             <div class="setting-label">Chess Board</div>
-            <div class="setting-sub">Board appearance</div>
           </div>
           <div style="display:flex;align-items:center;gap:10px;">
             <div class="board-preview" id="board-preview"></div>
@@ -2324,7 +2641,6 @@
         <div class="setting-row">
           <div>
             <div class="setting-label">Pieces Style</div>
-            <div class="setting-sub">Chess piece set</div>
           </div>
           <div style="display:flex;align-items:center;gap:10px;">
             <div class="piece-preview" id="piece-preview">
@@ -2435,7 +2751,7 @@
 
       <!-- Account / Login -->
       <div class="settings-card full-width" id="account-card">
-        <div class="card-title">🔐 Account</div>
+        <div class="card-title">🔒 Account</div>
         <div class="setting-row" style="flex-wrap:wrap;justify-content:space-between;gap:12px;">
           <div>
             <div class="setting-label">Account access</div>
@@ -2475,7 +2791,7 @@
 
       <!-- Player Profile -->
       <div class="settings-card full-width">
-        <div class="card-title">👤 Player Profile</div>
+        <div class="card-title">👥 Player Profile</div>
         <div class="profile-section">
           <div class="profile-avatar-big" id="profile-avatar">♔</div>
           <div class="profile-info">
@@ -2538,7 +2854,7 @@
   </div>
 </div>
 
-<!-- ===== CHALLENGE MODAL removed — now inline in page ===== -->
+<!-- ===== CHALLENGE MODAL removed ΓÇö now inline in page ===== -->
 
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script>
@@ -3210,7 +3526,7 @@ function makeMove(g, from, to, promotion = 'Q') {
       castlingRights: g.castlingRights,
       lastMove: g.lastMove,
       captured: g.captured,
-      turn: g.turn  // authoritative next turn — receiver sets it directly instead of toggling
+      turn: g.turn  // authoritative next turn ΓÇö receiver sets it directly instead of toggling
     });
   }
 
@@ -3219,7 +3535,7 @@ function makeMove(g, from, to, promotion = 'Q') {
     if (isInCheck(g.board, g.turn)) {
       showGameOver(g.turn === 'w' ? 'Black Wins!' : 'White Wins!', 'by Checkmate ♟', g.id);
     } else {
-      showGameOver('Draw!', 'Stalemate — no legal moves', g.id);
+      showGameOver('Draw!', 'Stalemate ΓÇö no legal moves', g.id);
     }
     g.gameOver = true;
     return;
@@ -3840,14 +4156,14 @@ function isSquareAttacked(board, byColor, r, f) { for(let i=0;i<8;i++) for(let j
 function isInCheck(board, color) { let kr=-1,kf=-1; for(let i=0;i<8;i++) for(let j=0;j<8;j++) if(board[i][j]===color+'K'){kr=i;kf=j;} return isSquareAttacked(board, color=='w'?'b':'w', kr, kf); }
 function getLegalMovesForPiece(g, r, f){ const piece=g.board[r][f]; if(!piece || piece[0]!==g.turn) return []; const raw=getPieceMoves(g.board,r,f,g.castlingRights,g.enPassant); return raw.filter(([tr,tf])=>{ const testBoard=cloneBoard(g.board); const fromPiece=testBoard[r][f]; testBoard[tr][tf]=fromPiece; testBoard[r][f]=null; if(fromPiece[1]=='K' && tf-f===2){ testBoard[r][5]=testBoard[r][7]; testBoard[r][7]=null; } if(fromPiece[1]=='K' && f-tf===2){ testBoard[r][3]=testBoard[r][0]; testBoard[r][0]=null; } if(fromPiece[1]=='P' && tf!==f && !g.board[tr][tf]) testBoard[r][tf]=null; return !isInCheck(testBoard, piece[0]); }); }
 function getAllMoves(g, color){ let moves=[]; for(let i=0;i<8;i++) for(let j=0;j<8;j++) if(g.board[i][j] && g.board[i][j][0]===color) getLegalMovesForPiece(g,i,j).forEach(to=>moves.push({from:[i,j],to})); return moves; }
-function makePuzzleMove(g, from, to, promo='Q'){ const piece=g.board[from[0]][from[1]]; const captured=g.board[to[0]][to[1]]; if(captured) g.captured[piece[0]].push(captured); g.board[to[0]][to[1]]=piece; g.board[from[0]][from[1]]=null; if(piece[1]=='P' && (to[0]==0||to[0]==7)){ if(confirmAlwaysQueen) g.board[to[0]][to[1]]=piece[0]+'Q'; else { g.pendingPromotion={to,color:piece[0]}; showPromotionModal(); return false; } } g.lastMove={from,to}; g.moveHistory.push({from,to,piece,captured}); g.moveStrings.push(`${String.fromCharCode(97+from[1])}${8-from[0]}→${String.fromCharCode(97+to[1])}${8-to[0]}`); g.turn = (g.turn=='w'?'b':'w'); g.selected=null; renderPuzzleBoard(g); return true; }
+function makePuzzleMove(g, from, to, promo='Q'){ const piece=g.board[from[0]][from[1]]; const captured=g.board[to[0]][to[1]]; if(captured) g.captured[piece[0]].push(captured); g.board[to[0]][to[1]]=piece; g.board[from[0]][from[1]]=null; if(piece[1]=='P' && (to[0]==0||to[0]==7)){ if(confirmAlwaysQueen) g.board[to[0]][to[1]]=piece[0]+'Q'; else { g.pendingPromotion={to,color:piece[0]}; showPromotionModal(); return false; } } g.lastMove={from,to}; g.moveHistory.push({from,to,piece,captured}); g.moveStrings.push(`${String.fromCharCode(97+from[1])}${8-from[0]}ΓåÆ${String.fromCharCode(97+to[1])}${8-to[0]}`); g.turn = (g.turn=='w'?'b':'w'); g.selected=null; renderPuzzleBoard(g); return true; }
 
 let confirmAlwaysQueen=true; // auto queen for puzzles
 function showPromotionModal(){ document.getElementById('promotion-modal').classList.add('open'); window.pendingPromoteCallback=null; }
 function completePromotion(pieceType){ const modal=document.getElementById('promotion-modal'); if(!currentPuzzleGame || !currentPuzzleGame.pendingPromotion) { modal.classList.remove('open'); return; } const {to,color}=currentPuzzleGame.pendingPromotion; currentPuzzleGame.board[to[0]][to[1]]=color+pieceType; currentPuzzleGame.pendingPromotion=null; currentPuzzleGame.turn=(currentPuzzleGame.turn=='w'?'b':'w'); currentPuzzleGame.selected=null; renderPuzzleBoard(currentPuzzleGame); modal.classList.remove('open'); afterPuzzleMove(); }
 function afterPuzzleMove(){ if(!currentPuzzleGame) return; const isMate = (getAllMoves(currentPuzzleGame, currentPuzzleGame.turn).length===0 && isInCheck(currentPuzzleGame.board, currentPuzzleGame.turn)); const movesUsed = currentPuzzleGame.moveHistory.length; document.getElementById('puzzle-moves-count').innerText = movesUsed;
   if(isMate){ if(movesUsed === puzzleExpectedMoves){ puzzleSuccess(true); } else { puzzleSuccess(false, `Correct checkmate but you used ${movesUsed} moves (need ${puzzleExpectedMoves}). Try again.`); resetCurrentPuzzle(); } } else if(movesUsed >= puzzleExpectedMoves && !isMate){ puzzleSuccess(false, `Failed: ${puzzleExpectedMoves} move(s) required but no checkmate. Reset.`); resetCurrentPuzzle(); } else { updatePuzzleStatus(); } }
-function puzzleSuccess(win, msg){ if(win){ completedPuzzles.add(activePuzzleId); localStorage.setItem('puzzle_completed', JSON.stringify([...completedPuzzles])); document.getElementById('puzzle-result-msg').innerHTML = '✅ SUCCESS! Puzzle completed.'; document.getElementById('puzzle-status-label').innerHTML = '✨ Victory!'; setTimeout(()=>{ nextPuzzle(); }, 1200); } else { document.getElementById('puzzle-result-msg').innerHTML = msg || 'Wrong move. Reset puzzle.'; } }
+function puzzleSuccess(win, msg){ if(win){ completedPuzzles.add(activePuzzleId); localStorage.setItem('puzzle_completed', JSON.stringify([...completedPuzzles])); document.getElementById('puzzle-result-msg').innerHTML = 'Γ£à SUCCESS! Puzzle completed.'; document.getElementById('puzzle-status-label').innerHTML = 'Γ£¿ Victory!'; setTimeout(()=>{ nextPuzzle(); }, 1200); } else { document.getElementById('puzzle-result-msg').innerHTML = msg || 'Wrong move. Reset puzzle.'; } }
 function updatePuzzleStatus(){ document.getElementById('puzzle-status-label').innerHTML = currentPuzzleGame.turn=='w'?"White to move":"Black to move"; renderPuzzleBoard(currentPuzzleGame); }
 
 // Rendering puzzle board
@@ -3870,8 +4186,8 @@ function renderPuzzleBoard(g){ const boardDiv=document.getElementById('puzzle-bo
       sq.addEventListener('click', (function(rr,ff){ return function(){ handlePuzzleClick(rr,ff); }; })(r,f)); boardDiv.appendChild(sq); } } }
 function handlePuzzleClick(r,f){ if(!currentPuzzleGame || currentPuzzleGame.gameOver) return; const piece=currentPuzzleGame.board[r][f]; if(currentPuzzleGame.selected){ const isLegal=currentPuzzleGame.legalMoves.some(([tr,tf])=>tr===r&&tf===f); if(isLegal){ makePuzzleMove(currentPuzzleGame, currentPuzzleGame.selected, [r,f]); if(!currentPuzzleGame.pendingPromotion) afterPuzzleMove(); currentPuzzleGame.selected=null; currentPuzzleGame.legalMoves=[]; renderPuzzleBoard(currentPuzzleGame); return; } else { currentPuzzleGame.selected=null; currentPuzzleGame.legalMoves=[]; renderPuzzleBoard(currentPuzzleGame); } } if(piece && piece[0]===currentPuzzleGame.turn){ currentPuzzleGame.selected=[r,f]; currentPuzzleGame.legalMoves=getLegalMovesForPiece(currentPuzzleGame,r,f); renderPuzzleBoard(currentPuzzleGame); } }
 function resetCurrentPuzzle(){ loadPuzzleById(activePuzzleId); }
-function showPuzzleHint(){ if(puzzleSolutions[activePuzzleId] && puzzleSolutions[activePuzzleId].length){ alert(`Hint: First move → ${puzzleSolutions[activePuzzleId][0]}`); } else alert("Try delivering checkmate, think of checks and king moves."); }
-function nextPuzzle(){ let nextId=activePuzzleId+1; while(nextId<=100 && completedPuzzles.has(nextId)) nextId++; if(nextId>100){ alert("You completed all available puzzles! 🎉"); backToPuzzleList(); return; } loadPuzzleById(nextId); }
+function showPuzzleHint(){ if(puzzleSolutions[activePuzzleId] && puzzleSolutions[activePuzzleId].length){ alert(`Hint: First move ΓåÆ ${puzzleSolutions[activePuzzleId][0]}`); } else alert("Try delivering checkmate, think of checks and king moves."); }
+function nextPuzzle(){ let nextId=activePuzzleId+1; while(nextId<=100 && completedPuzzles.has(nextId)) nextId++; if(nextId>100){ alert("You completed all available puzzles! ≡ƒÄë"); backToPuzzleList(); return; } loadPuzzleById(nextId); }
 function backToPuzzleList(){ document.getElementById('puzzle-select-screen').style.display='block'; document.getElementById('puzzle-game-screen').style.display='none'; renderPuzzleGrid(); }
 
 // ========== PUZZLE DATABASE (Mate in 1,2,3) ==========
@@ -3901,21 +4217,21 @@ function initPuzzles(){ const mate1Fens=[["r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5Q2/P
   for(let i=1;i<=100;i++) if(!puzzlesDB[i]) addPuzzle(i,"6k1/5ppp/8/8/8/6Q1/5PPP/6K1 w - - 0 1",'w',1+(i%3),"Qg6#", "Mate in "+ (1+(i%3)));
 }
 function renderPuzzleGrid(){ const grid=document.getElementById('puzzle-grid'); if(!grid)return; grid.innerHTML=''; for(let i=1;i<=100;i++){ const diff=i<=25?'beginner':i<=50?'intermediate':i<=75?'advanced':'expert'; if(puzzleFilterCat!=='all' && puzzleFilterCat!==diff) continue; const completed=completedPuzzles.has(i); const locked=i>20 && !completedPuzzles.has(i-1) && i>21; // progressive unlock roughly
-  const card=document.createElement('div'); card.className=`puzzle-card ${completed?'completed':''} ${locked?'locked':''}`; card.innerHTML=`<div class="puzzle-num">${i}</div><div class="puzzle-diff">${diff[0].toUpperCase()+diff.slice(1)} · Mate in ${puzzlesDB[i]?.expectedMoves||1}</div><div class="puzzle-status">${completed?'✅':locked?'🔒':'⬜'}</div>`; if(!locked) card.onclick=()=>loadPuzzleById(i); grid.appendChild(card); } }
+  const card=document.createElement('div'); card.className=`puzzle-card ${completed?'completed':''} ${locked?'locked':''}`; card.innerHTML=`<div class="puzzle-num">${i}</div><div class="puzzle-diff">${diff[0].toUpperCase()+diff.slice(1)} ┬╖ Mate in ${puzzlesDB[i]?.expectedMoves||1}</div><div class="puzzle-status">${completed?'Γ£à':locked?'≡ƒöÆ':'Γ¼£'}</div>`; if(!locked) card.onclick=()=>loadPuzzleById(i); grid.appendChild(card); } }
 function filterPuzzlesGrid(cat){ puzzleFilterCat=cat; document.querySelectorAll('.diff-btn').forEach(btn=>btn.classList.remove('active')); event.target.classList.add('active'); renderPuzzleGrid(); }
 initPuzzles(); renderPuzzleGrid();
 window.backToPuzzleList = backToPuzzleList; window.resetCurrentPuzzle = resetCurrentPuzzle; window.showPuzzleHint = showPuzzleHint; window.nextPuzzle = nextPuzzle;
 
 // ===== MATCHMAKING (Play Online) =====
 const FAKE_PLAYERS = [
-  { name:'GrandmasterX', elo:1842, avatar:'♛', flag:'🇷🇺' },
-  { name:'NightRider',   elo:1645, avatar:'♞', flag:'🇩🇪' },
-  { name:'RookMaster',   elo:1512, avatar:'♜', flag:'🇧🇷' },
-  { name:'QueenSlayer',  elo:1780, avatar:'♝', flag:'🇫🇷' },
-  { name:'PawnStorm',    elo:1430, avatar:'♟', flag:'🇬🇧' },
-  { name:'AlphaBishop',  elo:1920, avatar:'♗', flag:'🇺🇸' },
-  { name:'KnightFury',   elo:1550, avatar:'♘', flag:'🇯🇵' },
-  { name:'EndgameKing',  elo:2010, avatar:'♔', flag:'🇮🇳' },
+  { name:'GrandmasterX', elo:1842, avatar:'♛', flag:'≡ƒç╖≡ƒç║' },
+  { name:'NightRider',   elo:1645, avatar:'♞', flag:'≡ƒç⌐≡ƒç¬' },
+  { name:'RookMaster',   elo:1512, avatar:'♜', flag:'≡ƒçº≡ƒç╖' },
+  { name:'QueenSlayer',  elo:1780, avatar:'♝', flag:'≡ƒç½≡ƒç╖' },
+  { name:'PawnStorm',    elo:1430, avatar:'♟', flag:'🇺🇸' },
+  { name:'AlphaBishop',  elo:1920, avatar:'♗', flag:'≡ƒç║≡ƒç╕' },
+  { name:'KnightFury',   elo:1550, avatar:'♘', flag:'≡ƒç»≡ƒç╡' },
+  { name:'EndgameKing',  elo:2010, avatar:'♔', flag:'≡ƒç«≡ƒç│' },
 ];
 
 let mmTimerInterval = null;
@@ -3992,7 +4308,7 @@ socket.on('opponent-move', (data) => {
   if (g) {
     g.board = boardState;
     g.moveHistory = moveHistory || g.moveHistory;
-    // Append just this move's notation string (don't rebuild from moveHistory — those objects have no .move field)
+    // Append just this move's notation string (don't rebuild from moveHistory ΓÇö those objects have no .move field)
     g.moveStrings.push(move);
     // Set turn directly from authoritative server value instead of toggling (toggling breaks if event fires twice)
     playMoveSound(move.includes('x'));
@@ -4012,7 +4328,7 @@ socket.on('opponent-move', (data) => {
       if (isInCheck(g.board, g.turn)) {
         showGameOver(g.turn === 'w' ? 'Black Wins!' : 'White Wins!', 'by Checkmate ♟', g.id);
       } else {
-        showGameOver('Draw!', 'Stalemate — no legal moves', g.id);
+        showGameOver('Draw!', 'Stalemate ΓÇö no legal moves', g.id);
       }
       g.gameOver = true;
     }
@@ -4042,7 +4358,7 @@ socket.on('game-ended', (data) => {
   const { result, reason } = data;
   console.log('Game ended:', result, reason);
   if (reason === 'timeout') {
-    showGameOver(result, 'Time expired ⏱️', activeGame?.id);
+    showGameOver(result, 'Time expired ΓÅ▒∩╕Å', activeGame?.id);
   } else {
     alert(`Game ended: ${result} (${reason})`);
   }
@@ -4119,7 +4435,7 @@ function showMatchFound(opp) {
     </div>
   `;
 
-  // Countdown 3 → 0
+  // Countdown 3 ΓåÆ 0
   let count = 3;
   const arc = document.getElementById('countdown-arc');
   const numEl = document.getElementById('countdown-num');
@@ -4141,7 +4457,7 @@ function showMatchFound(opp) {
 function launchOnlineGame(opp) {
   // Update sidebar with opponent info
   document.getElementById('online-opp-name').textContent = `${opp.flag} ${opp.name}`;
-  document.getElementById('online-opp-elo').textContent = `⭐ ${opp.elo} ELO`;
+  document.getElementById('online-opp-elo').textContent = `Γ¡É ${opp.elo} ELO`;
   document.getElementById('online-opp-avatar').textContent = opp.avatar;
   const playerName = document.getElementById('profile-name')?.value || 'You';
   const colorLabel = yourColor === 'w' ? 'White' : 'Black';
@@ -4241,21 +4557,21 @@ function initChatScrollListeners() {
 
 // ===== FRIENDS (Play with Friends) =====
 const ALL_PLAYERS = [
-  { name:'ChessKing99',  elo:1820, avatar:'♛', status:'online',  flag:'🇰🇷' },
-  { name:'NightRider',   elo:1645, avatar:'♞', status:'online',  flag:'🇩🇪' },
-  { name:'RookMaster',   elo:1512, avatar:'♜', status:'online',  flag:'🇧🇷' },
-  { name:'QueenSlayer',  elo:1780, avatar:'♝', status:'offline', flag:'🇫🇷' },
-  { name:'PawnStorm',    elo:1430, avatar:'♟', status:'offline', flag:'🇬🇧' },
-  { name:'AlphaBishop',  elo:1920, avatar:'♗', status:'online',  flag:'🇺🇸' },
-  { name:'KnightFury',   elo:1550, avatar:'♘', status:'online',  flag:'🇯🇵' },
-  { name:'EndgameKing',  elo:2010, avatar:'♔', status:'ingame',  flag:'🇮🇳' },
-  { name:'GrandmasterX', elo:1842, avatar:'♚', status:'online',  flag:'🇷🇺' },
-  { name:'TacticWizard', elo:1698, avatar:'♙', status:'offline', flag:'🇪🇸' },
-  { name:'SicilianDef',  elo:1755, avatar:'♖', status:'online',  flag:'🇮🇹' },
-  { name:'EnPassant99',  elo:1389, avatar:'♘', status:'online',  flag:'🇳🇱' },
-  { name:'CaissaFan',    elo:1601, avatar:'♛', status:'offline', flag:'🇵🇱' },
-  { name:'ZugzwangZ',    elo:1933, avatar:'♜', status:'ingame',  flag:'🇸🇪' },
-  { name:'DoubleRooks',  elo:1470, avatar:'♝', status:'online',  flag:'🇦🇺' },
+  { name:'ChessKing99',  elo:1820, avatar:'♛', status:'online',  flag:'≡ƒç░≡ƒç╖' },
+  { name:'NightRider',   elo:1645, avatar:'♞', status:'online',  flag:'≡ƒç⌐≡ƒç¬' },
+  { name:'RookMaster',   elo:1512, avatar:'♜', status:'online',  flag:'≡ƒçº≡ƒç╖' },
+  { name:'QueenSlayer',  elo:1780, avatar:'♝', status:'offline', flag:'≡ƒç½≡ƒç╖' },
+  { name:'PawnStorm',    elo:1430, avatar:'♟', status:'offline', flag:'🇺🇸' },
+  { name:'AlphaBishop',  elo:1920, avatar:'♗', status:'online',  flag:'≡ƒç║≡ƒç╕' },
+  { name:'KnightFury',   elo:1550, avatar:'♘', status:'online',  flag:'≡ƒç»≡ƒç╡' },
+  { name:'EndgameKing',  elo:2010, avatar:'♔', status:'ingame',  flag:'≡ƒç«≡ƒç│' },
+  { name:'GrandmasterX', elo:1842, avatar:'♚', status:'online',  flag:'≡ƒç╖≡ƒç║' },
+  { name:'TacticWizard', elo:1698, avatar:'♔', status:'offline', flag:'≡ƒç¬≡ƒç╕' },
+  { name:'SicilianDef',  elo:1755, avatar:'♖', status:'online',  flag:'≡ƒç«≡ƒç╣' },
+  { name:'EnPassant99',  elo:1389, avatar:'♘', status:'online',  flag:'≡ƒç│≡ƒç▒' },
+  { name:'CaissaFan',    elo:1601, avatar:'♛', status:'offline', flag:'≡ƒç╡≡ƒç▒' },
+  { name:'ZugzwangZ',    elo:1933, avatar:'♜', status:'ingame',  flag:'≡ƒç╕≡ƒç¬' },
+  { name:'DoubleRooks',  elo:1470, avatar:'♝', status:'online',  flag:'≡ƒçª≡ƒç║' },
 ];
 
 let friendSearchTimeout = null;
@@ -4287,7 +4603,7 @@ function renderFriendResults(results, query) {
   if (results.length === 0) {
     container.innerHTML = `
       <div class="empty-search">
-        <div class="empty-search-icon">😕</div>
+        <div class="empty-search-icon">≡ƒÿò</div>
         No players found for "<strong>${query}</strong>"<br>
         <span style="font-size:11px;margin-top:6px;display:block;">Try a different username</span>
       </div>`;
@@ -4299,7 +4615,7 @@ function renderFriendResults(results, query) {
   const offline = results.filter(p => p.status === 'offline');
 
   let html = '';
-  const statusLabel = { online:'🟢 Online', ingame:'🎮 In Game', offline:'⚫ Offline' };
+  const statusLabel = { online:'≡ƒƒó Online', ingame:'≡ƒÄ« In Game', offline:'ΓÜ½ Offline' };
 
   const renderGroup = (label, players) => {
     if (!players.length) return;
@@ -4311,11 +4627,11 @@ function renderFriendResults(results, query) {
           <div class="pr-avatar">${p.avatar}</div>
           <div class="pr-info">
             <div class="pr-name">${p.flag} ${p.name}</div>
-            <div class="pr-meta">${statusLabel[p.status]} · ${p.elo} ELO</div>
+            <div class="pr-meta">${statusLabel[p.status]} ┬╖ ${p.elo} ELO</div>
           </div>
           <button class="pr-challenge-btn" ${canChallenge ? '' : 'disabled'}
             onclick="sendChallenge('${p.name}')">
-            ${canChallenge ? '⚔️ Challenge' : p.status === 'ingame' ? '🎮 In Game' : '⚫ Offline'}
+            ${canChallenge ? 'ΓÜö∩╕Å Challenge' : p.status === 'ingame' ? '≡ƒÄ« In Game' : 'ΓÜ½ Offline'}
           </button>
         </div>`;
     });
@@ -4330,7 +4646,7 @@ function renderFriendResults(results, query) {
 
 function showDefaultSearchState() {
   const container = document.getElementById('friend-search-results');
-  if (container) container.innerHTML = `<div class="empty-search"><div class="empty-search-icon">🔍</div>Type a username to search for players</div>`;
+  if (container) container.innerHTML = `<div class="empty-search"><div class="empty-search-icon">⚡</div>Type a username to search for players</div>`;
 }
 
 function sendChallenge(playerName) {
@@ -4349,16 +4665,16 @@ function sendChallenge(playerName) {
     <div class="challenge-pending-card">
       <div class="cp-avatar">${p.avatar}</div>
       <div class="cp-name">${p.flag} ${p.name}</div>
-      <div class="cp-elo">${p.elo} ELO · Online</div>
+      <div class="cp-elo">${p.elo} ELO ┬╖ Online</div>
       <div class="cp-status">
         Challenge sent<br>
         <span class="pulse-dot"></span><span class="pulse-dot"></span><span class="pulse-dot"></span>
       </div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:20px;">Waiting for ${p.name} to accept…</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:20px;">Waiting for ${p.name} to acceptΓÇª</div>
       <button class="action-btn secondary" onclick="cancelChallenge()">Cancel Challenge</button>
     </div>`;
 
-  // Auto-accept after 1.8–3.5s
+  // Auto-accept after 1.8ΓÇô3.5s
   const delay = 1800 + Math.random() * 1700;
   friendChallengeTimeout = setTimeout(() => {
     launchFriendGame(p);
@@ -4379,7 +4695,7 @@ function cancelChallenge() {
 
 function launchFriendGame(p) {
   document.getElementById('friends-opp-name').textContent = `${p.flag} ${p.name}`;
-  document.getElementById('friends-opp-elo').textContent = `⭐ ${p.elo} ELO`;
+  document.getElementById('friends-opp-elo').textContent = `Γ¡É ${p.elo} ELO`;
   document.getElementById('friends-opp-avatar').textContent = p.avatar;
 
   document.getElementById('friends-search-screen').style.display = 'none';
